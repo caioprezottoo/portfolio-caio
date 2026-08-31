@@ -1,0 +1,41 @@
+---
+// Ilha de scroll suave (Lenis). É o único JavaScript do site — carregado com
+// client:idle no index, então não disputa com a primeira renderização.
+---
+
+<script>
+  import Lenis from "lenis";
+
+  // Quem pediu menos movimento fica com o scroll nativo.
+  const querMenosMovimento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  );
+
+  if (!querMenosMovimento.matches) {
+    const lenis = new Lenis({
+      duration: 1.1,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    // Com o Lenis no comando, o scroll-behavior do CSS atrapalharia as âncoras.
+    document.documentElement.style.scrollBehavior = "auto";
+
+    for (const link of document.querySelectorAll<HTMLAnchorElement>(
+      'a[href^="#"]',
+    )) {
+      link.addEventListener("click", (evento) => {
+        const alvo = document.querySelector(link.getAttribute("href")!);
+        if (!alvo) return;
+        evento.preventDefault();
+        lenis.scrollTo(alvo as HTMLElement);
+      });
+    }
+
+    const quadro = (tempo: number) => {
+      lenis.raf(tempo);
+      requestAnimationFrame(quadro);
+    };
+    requestAnimationFrame(quadro);
+  }
+</script>
