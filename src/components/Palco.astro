@@ -196,10 +196,9 @@ const projetos = [
         return posicoes[j] + itens[j].offsetWidth / 2 - meio + volta * comprimento;
       };
 
-      const posicao = Math.min(
-        p * (itens.length + 1) * velocidade,
-        itens.length - 0.0001 + 1,
-      );
+      // A volta é fechada: o último trecho leva do último card de volta à
+      // seção, e o giro termina ali — não segue para o próximo projeto.
+      const posicao = Math.min(p * itens.length * velocidade, itens.length);
       const passo = Math.floor(posicao);
       const fracao = posicao - passo;
 
