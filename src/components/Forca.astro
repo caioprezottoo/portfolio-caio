@@ -34,7 +34,8 @@ import rasgo from "../assets/rasgo.jpg";
 
       <span class="forca__base">
         <span class="forca__texto forca__texto--destaque" style="--ordem: 3">
-          despercebidos.
+          <span class="forca__sr">despercebidos.</span>
+          <span class="forca__troca" aria-hidden="true">despercebidos.</span>
         </span>
       </span>
     </h2>
@@ -63,6 +64,93 @@ import rasgo from "../assets/rasgo.jpg";
     );
 
     observador.observe(secao);
+  }
+
+  // Decrypted text: a última palavra embaralha e se resolve em outra, em loop.
+  const troca = document.querySelector<HTMLElement>(".forca__troca");
+  const palavras = [
+    "despercebidos.",
+    "sem cliques.",
+    "em branco.",
+    "esquecidos.",
+    "batidos.",
+  ];
+  const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@$*<>/\\";
+
+  if (troca && !querMenosMovimento) {
+    let indice = 0;
+    let quadro = 0;
+    let fila: { de: string; para: string; inicio: number; fim: number }[] = [];
+    let animando = false;
+
+    const sortear = () =>
+      ALFABETO[Math.floor(Math.random() * ALFABETO.length)];
+
+    const desenhar = () => {
+      let saida = "";
+      let prontos = 0;
+
+      for (const letra of fila) {
+        if (quadro >= letra.fim) {
+          prontos++;
+          saida += letra.para;
+        } else if (quadro >= letra.inicio) {
+          saida += sortear();
+        } else {
+          saida += letra.de;
+        }
+      }
+
+      troca.textContent = saida;
+
+      if (prontos === fila.length) {
+        animando = false;
+        // segura a palavra resolvida antes de partir para a próxima
+        setTimeout(proxima, 2200);
+        return;
+      }
+
+      quadro++;
+      requestAnimationFrame(desenhar);
+    };
+
+    const proxima = () => {
+      if (animando) return;
+      animando = true;
+
+      const de = troca.textContent ?? "";
+      indice = (indice + 1) % palavras.length;
+      const para = palavras[indice];
+      const tamanho = Math.max(de.length, para.length);
+
+      fila = [];
+      for (let i = 0; i < tamanho; i++) {
+        const inicio = Math.floor(Math.random() * 18);
+        fila.push({
+          de: de[i] ?? "",
+          para: para[i] ?? "",
+          inicio,
+          fim: inicio + Math.floor(Math.random() * 18) + 8,
+        });
+      }
+
+      quadro = 0;
+      requestAnimationFrame(desenhar);
+    };
+
+    // começa depois da entrada da seção
+    const iniciar = new IntersectionObserver(
+      (entradas) => {
+        for (const entrada of entradas) {
+          if (!entrada.isIntersecting) continue;
+          setTimeout(proxima, 1600);
+          iniciar.disconnect();
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    if (secao) iniciar.observe(secao);
   }
 </script>
 
@@ -163,6 +251,22 @@ import rasgo from "../assets/rasgo.jpg";
 
   .forca__texto--destaque {
     color: #ff3f0a;
+  }
+
+  /* o texto que os leitores de tela anunciam fica fixo; o que embaralha é
+     decorativo */
+  .forca__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .forca__troca {
+    display: inline-block;
+    white-space: pre;
   }
 
   @keyframes focar {
