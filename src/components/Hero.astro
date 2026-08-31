@@ -1,90 +1,72 @@
 ---
 import { WHATSAPP_URL } from "../data/contato";
 
-// Hero de tela cheia: o nome preenche a largura, com glow difuso sobre o laranja.
-// Cada linha é um SVG que estica o texto até a largura total do container.
-// Desktop usa uma linha (proporção natural do Anton); telas estreitas usam duas,
-// senão a altura das letras fica insignificante. A troca é só CSS — zero JS.
-const umaLinha = ["CAIO PREZOTTO"];
-const duasLinhas = ["CAIO", "PREZOTTO"];
+// Hero de tela cheia: o nome preenche a largura sobre o laranja, com glow
+// pulsante. Na entrada cada linha "explode" de um ponto até o tamanho final,
+// com duas cópias-fantasma atrás formando um rastro.
+// Uma linha no desktop, duas em telas estreitas — alternância só por CSS.
+const variantes = [
+  { classe: "larga", linhas: ["CAIO PREZOTTO"] },
+  { classe: "estreita", linhas: ["CAIO", "PREZOTTO"] },
+];
 ---
 
 <header class="hero">
   <div class="hero__nome">
-    <div class="hero__variante hero__variante--larga">
-      {
-        umaLinha.map((linha, i) => (
-          <svg
-            class="hero__linha"
-            viewBox="0 0 1000 200"
-            role="img"
-            aria-label="Caio Prezotto"
-          >
-            <defs>
-              <filter id={`glow-w-${i}`} x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="12" />
-              </filter>
-            </defs>
-            <text
-              class="hero__texto"
-              x="500"
-              y="160"
-              text-anchor="middle"
-              textLength="1000"
-              lengthAdjust="spacingAndGlyphs"
-              filter={`url(#glow-w-${i})`}
+    {
+      variantes.map((v) => (
+        <div class={`hero__variante hero__variante--${v.classe}`}>
+          {v.linhas.map((linha, i) => (
+            <svg
+              class="hero__linha"
+              viewBox="0 0 1000 200"
+              role={v.classe === "larga" && i === 0 ? "img" : "presentation"}
+              aria-label={
+                v.classe === "larga" && i === 0 ? "Caio Prezotto" : undefined
+              }
+              aria-hidden={v.classe === "larga" && i === 0 ? undefined : "true"}
             >
-              {linha}
-            </text>
-            <text
-              class="hero__texto"
-              x="500"
-              y="160"
-              text-anchor="middle"
-              textLength="1000"
-              lengthAdjust="spacingAndGlyphs"
-            >
-              {linha}
-            </text>
-          </svg>
-        ))
-      }
-    </div>
-
-    <div class="hero__variante hero__variante--estreita" aria-hidden="true">
-      {
-        duasLinhas.map((linha, i) => (
-          <svg class="hero__linha" viewBox="0 0 1000 200">
-            <defs>
-              <filter id={`glow-n-${i}`} x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="12" />
-              </filter>
-            </defs>
-            <text
-              class="hero__texto"
-              x="500"
-              y="160"
-              text-anchor="middle"
-              textLength="1000"
-              lengthAdjust="spacingAndGlyphs"
-              filter={`url(#glow-n-${i})`}
-            >
-              {linha}
-            </text>
-            <text
-              class="hero__texto"
-              x="500"
-              y="160"
-              text-anchor="middle"
-              textLength="1000"
-              lengthAdjust="spacingAndGlyphs"
-            >
-              {linha}
-            </text>
-          </svg>
-        ))
-      }
-    </div>
+              {/* rastro: duas cópias atrás, levemente atrasadas */}
+              <text
+                class="hero__texto hero__texto--t2"
+                style={`--atraso: ${0.6 + i * 0.11}s`}
+                x="500"
+                y="160"
+                text-anchor="middle"
+                textLength="1000"
+                lengthAdjust="spacingAndGlyphs"
+                aria-hidden="true"
+              >
+                {linha}
+              </text>
+              <text
+                class="hero__texto hero__texto--t1"
+                style={`--atraso: ${0.55 + i * 0.11}s`}
+                x="500"
+                y="160"
+                text-anchor="middle"
+                textLength="1000"
+                lengthAdjust="spacingAndGlyphs"
+                aria-hidden="true"
+              >
+                {linha}
+              </text>
+              <text
+                class="hero__texto hero__texto--solido"
+                style={`--atraso: ${0.5 + i * 0.11}s`}
+                x="500"
+                y="160"
+                text-anchor="middle"
+                textLength="1000"
+                lengthAdjust="spacingAndGlyphs"
+              >
+                {linha}
+              </text>
+            </svg>
+          ))}
+        </div>
+      ))
+    }
   </div>
 
   <nav class="hero__barra" aria-label="Atalhos">
@@ -98,6 +80,23 @@ const duasLinhas = ["CAIO", "PREZOTTO"];
 </header>
 
 <style>
+  /* Registrar os raios como <length> permite interpolá-los na animação. */
+  @property --glow-1 {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 5px;
+  }
+  @property --glow-2 {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 16px;
+  }
+  @property --glow-3 {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 40px;
+  }
+
   .hero {
     position: relative;
     min-height: 100svh;
@@ -133,6 +132,15 @@ const duasLinhas = ["CAIO", "PREZOTTO"];
     display: block;
     width: 100%;
     height: auto;
+    overflow: visible;
+    will-change: filter;
+    --glow-1: 5px;
+    --glow-2: 16px;
+    --glow-3: 40px;
+    filter: drop-shadow(0 0 var(--glow-1) rgba(255, 255, 255, 0.7))
+      drop-shadow(0 0 var(--glow-2) rgba(255, 255, 255, 0.4))
+      drop-shadow(0 0 var(--glow-3) rgba(255, 255, 255, 0.2));
+    animation: glow 8.5s cubic-bezier(0.37, 0, 0.63, 1) 1.9s infinite;
   }
 
   .hero__texto {
@@ -140,6 +148,95 @@ const duasLinhas = ["CAIO", "PREZOTTO"];
     font-size: 190px;
     font-weight: 400;
     fill: #f4f0e8;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: expandir 0.82s cubic-bezier(0.16, 1.28, 0.3, 1) var(--atraso, 0.5s)
+      both;
+  }
+
+  .hero__texto--solido {
+    animation:
+      surgir 0.22s ease-out both,
+      expandir 0.82s cubic-bezier(0.16, 1.28, 0.3, 1) var(--atraso, 0.5s) both;
+  }
+
+  .hero__texto--t1 {
+    animation:
+      expandir 0.82s cubic-bezier(0.16, 1.28, 0.3, 1) var(--atraso) both,
+      rastro 0.82s ease-out var(--atraso) both;
+  }
+
+  .hero__texto--t2 {
+    animation:
+      expandir 0.82s cubic-bezier(0.16, 1.28, 0.3, 1) var(--atraso) both,
+      rastro-fraco 0.82s ease-out var(--atraso) both;
+  }
+
+  @keyframes glow {
+    0%,
+    100% {
+      --glow-1: 5px;
+      --glow-2: 16px;
+      --glow-3: 40px;
+    }
+    50% {
+      --glow-1: 26px;
+      --glow-2: 82px;
+      --glow-3: 176px;
+    }
+  }
+
+  @keyframes expandir {
+    from {
+      scale: 0.02;
+    }
+    to {
+      scale: 1;
+    }
+  }
+
+  @keyframes surgir {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes rastro {
+    0% {
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.34;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes rastro-fraco {
+    0% {
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.17;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__linha,
+    .hero__texto {
+      animation: none;
+    }
+    .hero__texto--t1,
+    .hero__texto--t2 {
+      display: none;
+    }
   }
 
   .hero__barra {
