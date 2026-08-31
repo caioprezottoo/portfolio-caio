@@ -1,0 +1,146 @@
+---
+import Forca from "./Forca.astro";
+import Galeria from "./Galeria.astro";
+
+// Palco: enquanto a página rola, a tela fica presa (sticky) e o scroll vira
+// movimento lateral — a seção de força sai pela esquerda e a galeria entra
+// pela direita. A sensação é de congelamento, não de descida.
+//
+// O motor é scroll-driven animation em CSS: o palco declara uma view-timeline
+// e o trilho anima o próprio translate ao longo dela. Zero JS.
+// Sem suporte, o bloco vira fluxo normal: seção em cima, galeria embaixo com
+// rolagem horizontal própria — nada fica inacessível.
+---
+
+<section class="palco" aria-label="Trabalhos">
+  <div class="palco__tela">
+    <div class="palco__trilho">
+      <div class="palco__painel palco__painel--forca">
+        <Forca />
+      </div>
+      <div class="palco__painel palco__painel--galeria">
+        <Galeria />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .palco {
+    /* quanto mais alto, mais scroll é preciso para atravessar o palco */
+    height: 520vh;
+    view-timeline-name: --palco;
+    view-timeline-axis: block;
+    background: #fff;
+  }
+
+  .palco__tela {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .palco__trilho {
+    display: flex;
+    height: 100%;
+    width: max-content;
+    animation: deslizar linear both;
+    animation-timeline: --palco;
+    /* o movimento acontece só enquanto o palco cobre a tela inteira */
+    animation-range: contain 0% contain 100%;
+  }
+
+  .palco__painel {
+    width: 100vw;
+    height: 100%;
+    flex: 0 0 auto;
+  }
+
+  /* a seção precisa ocupar a largura inteira do painel: como item de flex
+     ela encolhia para o tamanho do conteúdo e ficava colada à esquerda */
+  .palco__painel--forca {
+    display: grid;
+    align-content: center;
+  }
+
+  .palco__painel--forca > :global(.forca) {
+    width: 100%;
+  }
+
+  .palco__painel--galeria {
+    width: max-content;
+    min-width: 100vw;
+  }
+
+  @keyframes deslizar {
+    /* segura a frase parada no primeiro terço: a tela congela e só depois
+       o movimento lateral começa */
+    0%,
+    32% {
+      translate: 0 0;
+    }
+    /* leva o trilho até o fim da galeria */
+    100% {
+      translate: calc(-1 * (100% - 100vw)) 0;
+    }
+  }
+
+  @supports not (animation-timeline: view()) {
+    .palco {
+      height: auto;
+    }
+
+    .palco__tela {
+      position: static;
+      height: auto;
+      overflow: visible;
+    }
+
+    .palco__trilho {
+      display: block;
+      width: auto;
+      animation: none;
+    }
+
+    .palco__painel {
+      width: auto;
+      height: auto;
+    }
+
+    .palco__painel--galeria {
+      width: auto;
+      overflow-x: auto;
+      padding-block: clamp(3rem, 8vh, 5rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .palco {
+      height: auto;
+    }
+
+    .palco__tela {
+      position: static;
+      height: auto;
+      overflow: visible;
+    }
+
+    .palco__trilho {
+      display: block;
+      width: auto;
+      animation: none;
+    }
+
+    .palco__painel {
+      width: auto;
+      height: auto;
+    }
+
+    .palco__painel--galeria {
+      width: auto;
+      overflow-x: auto;
+      padding-block: clamp(3rem, 8vh, 5rem);
+    }
+  }
+</style>
