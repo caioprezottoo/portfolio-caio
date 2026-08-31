@@ -66,17 +66,17 @@ const linhas = palavras.map((palavra) => ({
   /* Registrar os raios como <length> permite interpolá-los na animação. */
   @property --glow-1 {
     syntax: "<length>";
-    inherits: false;
+    inherits: true;
     initial-value: 5px;
   }
   @property --glow-2 {
     syntax: "<length>";
-    inherits: false;
+    inherits: true;
     initial-value: 16px;
   }
   @property --glow-3 {
     syntax: "<length>";
-    inherits: false;
+    inherits: true;
     initial-value: 40px;
   }
 
@@ -138,9 +138,6 @@ const linhas = palavras.map((palavra) => ({
     --glow-1: 5px;
     --glow-2: 16px;
     --glow-3: 40px;
-    filter: drop-shadow(0 0 var(--glow-1) rgba(255, 255, 255, 0.7))
-      drop-shadow(0 0 var(--glow-2) rgba(255, 255, 255, 0.4))
-      drop-shadow(0 0 var(--glow-3) rgba(255, 255, 255, 0.2));
     transform-origin: 50% 100%;
     animation:
       flash 0.9s cubic-bezier(0.33, 1, 0.68, 1) calc(var(--batida) - 0.08s)
@@ -167,21 +164,17 @@ const linhas = palavras.map((palavra) => ({
   .hero__letra {
     display: block;
     position: relative;
+    /* o glow mora na letra, não no bloco: assim ele sobe junto com ela em vez
+       de ficar defasado enquanto o conteúdo se move por baixo do filtro */
+    filter: drop-shadow(0 0 var(--glow-1) rgba(255, 255, 255, 0.7))
+      drop-shadow(0 0 var(--glow-2) rgba(255, 255, 255, 0.4))
+      drop-shadow(0 0 var(--glow-3) rgba(255, 255, 255, 0.2));
     translate: 0 var(--distancia);
     /* overshoot: a letra passa do lugar e volta — é o que dá o soco */
     animation: revelar var(--duracao) cubic-bezier(0.16, 1.42, 0.32, 1)
       calc(var(--inicio) + var(--ordem) * var(--intervalo)) both;
   }
 
-  /* rastro: um fantasma da própria letra que sobe atrás e some */
-  .hero__letra::before {
-    content: attr(data-l);
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    animation: rastro var(--duracao) ease-out
-      calc(var(--inicio) + 0.04s + var(--ordem) * var(--intervalo)) both;
-  }
 
   @keyframes revelar {
     to {
@@ -189,19 +182,6 @@ const linhas = palavras.map((palavra) => ({
     }
   }
 
-  @keyframes rastro {
-    0% {
-      opacity: 0;
-      translate: 0 60%;
-    }
-    25% {
-      opacity: 0.34;
-    }
-    100% {
-      opacity: 0;
-      translate: 0 0;
-    }
-  }
 
   /* pulso do conjunto no instante em que a última letra assenta */
   @keyframes impacto {
@@ -223,10 +203,10 @@ const linhas = palavras.map((palavra) => ({
       --glow-2: 16px;
       --glow-3: 40px;
     }
-    30% {
-      --glow-1: 34px;
-      --glow-2: 104px;
-      --glow-3: 210px;
+    22% {
+      --glow-1: 44px;
+      --glow-2: 128px;
+      --glow-3: 250px;
     }
     100% {
       --glow-1: 5px;
@@ -283,33 +263,16 @@ const linhas = palavras.map((palavra) => ({
     letter-spacing: 0.14em;
     text-transform: uppercase;
     text-decoration: none;
-    text-shadow: 0 0 14px rgba(255, 255, 255, 0.5);
-    transition:
-      text-shadow 0.3s ease,
-      filter 0.3s ease;
+    transition: opacity 0.3s ease;
     opacity: 0;
     /* entra depois do soco, para não competir com ele */
-    animation:
-      surgir-scroll 0.6s ease-out calc(var(--fim) + 0.2s) both,
-      brilho 3.2s ease-in-out calc(var(--fim) + 0.8s) infinite;
+    animation: surgir-scroll 0.6s ease-out calc(var(--fim) + 0.2s) both;
   }
 
   .hero__scroll:hover {
-    text-shadow: 0 0 22px rgba(255, 255, 255, 0.95);
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+    opacity: 0.72;
   }
 
-  @keyframes brilho {
-    0%,
-    100% {
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
-      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.25));
-    }
-    50% {
-      text-shadow: 0 0 22px rgba(255, 255, 255, 0.85);
-      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.55));
-    }
-  }
 
   .hero__scroll-seta {
     animation: descer 2.4s ease-in-out calc(var(--fim) + 1s) infinite;
@@ -349,9 +312,6 @@ const linhas = palavras.map((palavra) => ({
     .hero__letra {
       animation: none;
       translate: 0 0;
-    }
-    .hero__letra::before {
-      content: none;
     }
   }
 
