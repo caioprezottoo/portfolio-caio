@@ -17,7 +17,7 @@ const {
   bend = 1,
   borderRadius = 0.05,
   scrollEase = 0.05,
-  scrollSpeed = 2,
+  scrollSpeed = 0.85,
 } = Astro.props;
 
 const projetos = [
@@ -94,9 +94,13 @@ const projetos = [
       // A roda começa a girar JUNTO com o deslize lateral (0.28), não depois:
       // ela chega em movimento. A curva desacelera no fim, então o giro entra
       // rápido e assenta.
-      const bruto = Math.min(Math.max((progresso - 0.28) / 0.72, 0), 1);
-      const p = 1 - Math.pow(1 - bruto, 2.2);
-      alvo = p * velocidade * vao() * itens.length;
+      // Durante a ENTRADA a roda quase não gira: os cards vêm praticamente
+      // parados, colados na borda, empurrando a seção para fora. Só depois
+      // que a faixa toma a tela é que a roda começa a rodar de fato.
+      const entrada = Math.min(Math.max((progresso - 0.28) / 0.27, 0), 1);
+      const depois = Math.min(Math.max((progresso - 0.55) / 0.45, 0), 1);
+      const avanco = entrada * 0.12 + depois * 1;
+      alvo = avanco * velocidade * vao() * itens.length;
 
       // durante a entrada, a roda inteira ainda está tombada e se endireita
       if (palcoDaRoda) {
@@ -147,12 +151,13 @@ const projetos = [
     gap: clamp(1.5rem, 4vh, 3rem);
     height: 100%;
     width: 100vw;
-    padding-inline: clamp(1.5rem, 6vw, 5rem);
+    /* sem respiro lateral: o card encosta na borda e "empurra" a seção */
+    padding-inline: 0;
     overflow: hidden;
   }
 
   .galeria__titulo {
-    margin: 0;
+    margin: 0 0 0 clamp(1.5rem, 6vw, 5rem);
     font-family: "Neue Montreal", system-ui, sans-serif;
     font-size: 0.75rem;
     font-weight: 600;

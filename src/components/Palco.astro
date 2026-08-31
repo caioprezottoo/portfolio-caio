@@ -14,12 +14,13 @@ import Galeria from "./Galeria.astro";
 
 <section class="palco" aria-label="Trabalhos">
   <div class="palco__tela">
+    <div class="palco__grao" aria-hidden="true"></div>
     <div class="palco__trilho">
       <div class="palco__painel palco__painel--forca">
         <Forca />
       </div>
       <div class="palco__painel palco__painel--galeria">
-        <Galeria bend={1} borderRadius={0.05} scrollEase={0.05} scrollSpeed={2} />
+        <Galeria bend={1} borderRadius={0.05} scrollEase={0.05} scrollSpeed={0.85} />
       </div>
     </div>
   </div>
@@ -39,6 +40,18 @@ import Galeria from "./Galeria.astro";
     top: 0;
     height: 100svh;
     overflow: hidden;
+  }
+
+  /* o grão cobre o palco inteiro — se ficasse só na seção, a borda dele
+     viraria uma divisória visível durante a transição */
+  .palco__grao {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   }
 
   .palco__trilho {
@@ -97,7 +110,19 @@ import Galeria from "./Galeria.astro";
       overflow: visible;
     }
 
-    .palco__trilho {
+    /* o grão cobre o palco inteiro — se ficasse só na seção, a borda dele
+     viraria uma divisória visível durante a transição */
+  .palco__grao {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  .palco__trilho {
       display: block;
       width: auto;
       animation: none;
@@ -126,7 +151,19 @@ import Galeria from "./Galeria.astro";
       overflow: visible;
     }
 
-    .palco__trilho {
+    /* o grão cobre o palco inteiro — se ficasse só na seção, a borda dele
+     viraria uma divisória visível durante a transição */
+  .palco__grao {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  .palco__trilho {
       display: block;
       width: auto;
       animation: none;

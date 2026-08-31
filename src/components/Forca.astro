@@ -8,7 +8,6 @@ import rasgo from "../assets/rasgo.jpg";
 ---
 
 <section class="forca" id="trabalhos" aria-labelledby="forca-titulo">
-  <div class="forca__grao" aria-hidden="true"></div>
 
   <div class="forca__interno">
     <h2 class="forca__titulo" id="forca-titulo">
@@ -163,16 +162,6 @@ import rasgo from "../assets/rasgo.jpg";
     overflow: hidden;
   }
 
-  /* grão: ruído gerado no próprio CSS, sem requisição nem imagem */
-  .forca__grao {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.14;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  }
 
   .forca__interno {
     position: relative;
