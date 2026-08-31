@@ -123,10 +123,14 @@ const linhas = palavras.map((palavra) => ({
     display: flex;
   }
 
-  /* Cada letra sobe de dentro da própria máscara. */
+  /* Cada letra sobe de dentro da própria máscara.
+     A máscara precisa esconder só o que está ABAIXO da linha de base: com
+     overflow:hidden ela cortaria os quatro lados e decepava o topo da letra
+     no overshoot. clip-path corta a base e deixa o topo livre. */
   .hero__mascara {
     display: block;
-    overflow: hidden;
+    overflow: visible;
+    clip-path: inset(-60% -10% 0 -10%);
     /* espaço para as descidas do glifo não serem cortadas */
     padding-bottom: 0.08em;
   }
