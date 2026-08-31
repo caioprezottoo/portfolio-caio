@@ -2,41 +2,35 @@
 import { Image } from "astro:assets";
 import rasgo from "../assets/rasgo.jpg";
 
-// Seção de força: a frase é a imagem. O texto abre no meio para a foto passar
-// — linha cheia em cima, duas linhas ladeando a foto, virada da frase embaixo.
-// Linguagem do moodboard: tipografia condensada grande, grão, uma cor só.
+// Seção de força: a frase é a imagem. Composição assimétrica — linha cheia no
+// topo, a foto ocupando a direita, duas linhas curtas à esquerda dela e a
+// virada da frase embaixo, alinhada à direita.
 ---
 
 <section class="forca" aria-labelledby="forca-titulo">
   <div class="forca__grao" aria-hidden="true"></div>
 
   <div class="forca__interno">
-
     <h2 class="forca__titulo" id="forca-titulo">
-      <span class="forca__linha forca__linha--topo">
-        <span class="forca__texto">Sites personalizados</span>
+      <span class="forca__topo">
+        <span class="forca__texto">Sites personalizados que</span>
       </span>
 
-      <span class="forca__meio">
-        <span class="forca__linha forca__linha--esq">
-          <span class="forca__texto">que cansaram</span>
-        </span>
-
-        <Image
-          class="forca__foto"
-          src={rasgo}
-          alt=""
-          widths={[394, 788]}
-          sizes="(min-width: 60rem) 24rem, 70vw"
-          loading="lazy"
-        />
-
-        <span class="forca__linha forca__linha--dir">
-          <span class="forca__texto">de passar</span>
-        </span>
+      <span class="forca__esq">
+        <span class="forca__texto">cansaram</span>
+        <span class="forca__texto">de passar</span>
       </span>
 
-      <span class="forca__linha forca__linha--base">
+      <Image
+        class="forca__foto"
+        src={rasgo}
+        alt=""
+        widths={[394, 788]}
+        sizes="(min-width: 48rem) 34vw, 78vw"
+        loading="lazy"
+      />
+
+      <span class="forca__base">
         <span class="forca__texto forca__texto--destaque">despercebidos.</span>
       </span>
     </h2>
@@ -46,9 +40,9 @@ import rasgo from "../assets/rasgo.jpg";
 <style>
   .forca {
     position: relative;
-    background: #f4f0e8;
-    color: #16130f;
-    padding-block: clamp(4.5rem, 12vh, 8rem);
+    background: #fff;
+    color: #0d0b0a;
+    padding-block: clamp(4rem, 11vh, 7.5rem);
     overflow: hidden;
   }
 
@@ -56,9 +50,9 @@ import rasgo from "../assets/rasgo.jpg";
   .forca__grao {
     position: absolute;
     inset: 0;
-    pointer-events: none;
     z-index: 0;
-    opacity: 0.16;
+    pointer-events: none;
+    opacity: 0.14;
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   }
@@ -67,57 +61,51 @@ import rasgo from "../assets/rasgo.jpg";
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 78rem;
+    max-width: 72rem;
     margin-inline: auto;
-    padding-inline: clamp(1.25rem, 5vw, 4rem);
+    padding-inline: clamp(1.25rem, 6vw, 5rem);
   }
 
-
   .forca__titulo {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2.5rem);
     margin: 0;
     font-family: "Neue Montreal", system-ui, sans-serif;
     font-weight: 600;
-    font-size: clamp(2rem, 5.6vw, 5.25rem);
-    line-height: 0.94;
+    font-size: clamp(1.9rem, 5vw, 4.5rem);
+    line-height: 1.05;
     letter-spacing: -0.035em;
   }
 
-  /* a faixa do meio abre espaço para a foto entre as duas linhas */
-  .forca__meio {
-    display: grid;
-    grid-template-columns: max-content auto max-content;
-    justify-content: center;
-    align-items: center;
-    gap: clamp(0.75rem, 2vw, 2rem);
-    margin-block: 0.1em;
-  }
-
-  .forca__linha {
+  /* linha cheia atravessando as duas colunas */
+  .forca__topo {
+    grid-column: 1 / -1;
     display: block;
-  }
-
-  .forca__meio .forca__linha {
-    font-size: 0.92em;
-  }
-
-  /* as duas linhas que ladeiam a foto ficam inteiras, sem quebrar palavra */
-  .forca__linha--esq,
-  .forca__linha--dir {
     white-space: nowrap;
   }
 
-  .forca__linha--esq {
-    text-align: right;
-  }
-
-  .forca__linha--dir {
-    text-align: left;
+  /* as duas linhas curtas, à esquerda da foto */
+  .forca__esq {
+    grid-column: 1;
+    display: block;
   }
 
   .forca__foto {
-    width: clamp(11rem, 24vw, 24rem);
+    grid-column: 2;
+    width: clamp(12rem, 32vw, 22rem);
     height: auto;
-    border-radius: 8px;
+    border-radius: 14px;
+  }
+
+  /* a virada da frase: embaixo, à direita e maior que o resto */
+  .forca__base {
+    grid-column: 1 / -1;
+    display: block;
+    text-align: right;
+    font-size: 1.12em;
+    margin-top: 0.1em;
   }
 
   .forca__texto {
@@ -149,24 +137,28 @@ import rasgo from "../assets/rasgo.jpg";
     }
   }
 
-  /* Telas estreitas: tudo empilhado, a foto no meio da frase. */
+  /* Telas estreitas: tudo empilhado, a foto entre as linhas. */
   @media (max-width: 48rem) {
-    .forca__meio {
+    .forca__titulo {
       grid-template-columns: 1fr;
-      gap: 0.6rem;
       justify-items: start;
+      gap: 0.75rem;
     }
 
-    .forca__linha--esq,
-    .forca__linha--dir {
-      text-align: left;
+    .forca__topo {
       white-space: normal;
     }
 
     .forca__foto {
-      width: min(72vw, 20rem);
-      margin-block: 0.35em;
+      grid-column: 1;
+      width: min(78vw, 20rem);
       justify-self: center;
+      margin-block: 0.5rem;
+    }
+
+    .forca__base {
+      text-align: left;
+      font-size: 1.05em;
     }
   }
 
