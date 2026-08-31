@@ -11,10 +11,6 @@ import rasgo from "../assets/rasgo.jpg";
   <div class="forca__grao" aria-hidden="true"></div>
 
   <div class="forca__interno">
-    <p class="forca__marca" aria-hidden="true">
-      <span>Caio Prezotto</span>
-      <span>Est. 2026</span>
-    </p>
 
     <h2 class="forca__titulo" id="forca-titulo">
       <span class="forca__linha forca__linha--topo">
@@ -61,38 +57,27 @@ import rasgo from "../assets/rasgo.jpg";
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.22;
+    z-index: 0;
+    opacity: 0.16;
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   }
 
   .forca__interno {
     position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 78rem;
     margin-inline: auto;
     padding-inline: clamp(1.25rem, 5vw, 4rem);
   }
 
-  .forca__marca {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin: 0 0 clamp(2rem, 5vh, 3.5rem);
-    padding-bottom: 0.9rem;
-    border-bottom: 1px solid rgba(22, 19, 15, 0.2);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(22, 19, 15, 0.6);
-  }
 
   .forca__titulo {
     margin: 0;
     font-family: "Neue Montreal", system-ui, sans-serif;
     font-weight: 600;
-    font-size: clamp(2.25rem, 6.4vw, 5.75rem);
+    font-size: clamp(2rem, 5.6vw, 5.25rem);
     line-height: 0.94;
     letter-spacing: -0.035em;
   }
@@ -100,7 +85,8 @@ import rasgo from "../assets/rasgo.jpg";
   /* a faixa do meio abre espaço para a foto entre as duas linhas */
   .forca__meio {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: max-content auto max-content;
+    justify-content: center;
     align-items: center;
     gap: clamp(0.75rem, 2vw, 2rem);
     margin-block: 0.1em;
@@ -108,7 +94,16 @@ import rasgo from "../assets/rasgo.jpg";
 
   .forca__linha {
     display: block;
-    overflow: hidden;
+  }
+
+  .forca__meio .forca__linha {
+    font-size: 0.92em;
+  }
+
+  /* as duas linhas que ladeiam a foto ficam inteiras, sem quebrar palavra */
+  .forca__linha--esq,
+  .forca__linha--dir {
+    white-space: nowrap;
   }
 
   .forca__linha--esq {
@@ -122,15 +117,16 @@ import rasgo from "../assets/rasgo.jpg";
   .forca__foto {
     width: clamp(11rem, 24vw, 24rem);
     height: auto;
-    border-radius: 2px;
+    border-radius: 8px;
   }
 
   .forca__texto {
     display: block;
-    translate: 0 100%;
+    opacity: 0;
+    translate: 0 14px;
     animation: subir-linha linear both;
     animation-timeline: view();
-    animation-range: entry 6% cover 32%;
+    animation-range: entry 6% cover 30%;
   }
 
   .forca__texto--destaque {
@@ -139,6 +135,7 @@ import rasgo from "../assets/rasgo.jpg";
 
   @keyframes subir-linha {
     to {
+      opacity: 1;
       translate: 0 0;
     }
   }
@@ -146,6 +143,7 @@ import rasgo from "../assets/rasgo.jpg";
   /* Sem suporte a scroll-driven animations, o texto já nasce no lugar. */
   @supports not (animation-timeline: view()) {
     .forca__texto {
+      opacity: 1;
       translate: 0 0;
       animation: none;
     }
@@ -162,6 +160,7 @@ import rasgo from "../assets/rasgo.jpg";
     .forca__linha--esq,
     .forca__linha--dir {
       text-align: left;
+      white-space: normal;
     }
 
     .forca__foto {
@@ -173,6 +172,7 @@ import rasgo from "../assets/rasgo.jpg";
 
   @media (prefers-reduced-motion: reduce) {
     .forca__texto {
+      opacity: 1;
       translate: 0 0;
       animation: none;
     }
