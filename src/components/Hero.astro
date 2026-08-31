@@ -1,76 +1,184 @@
 ---
-import { WHATSAPP_URL, AGENDA_URL } from "../data/contato";
+import { WHATSAPP_URL } from "../data/contato";
+
+// Hero de tela cheia: o nome preenche a largura, com glow difuso sobre o laranja.
+// Cada linha é um SVG que estica o texto até a largura total do container.
+// Desktop usa uma linha (proporção natural do Anton); telas estreitas usam duas,
+// senão a altura das letras fica insignificante. A troca é só CSS — zero JS.
+const umaLinha = ["CAIO PREZOTTO"];
+const duasLinhas = ["CAIO", "PREZOTTO"];
 ---
 
 <header class="hero">
-  <div class="wrap hero__inner">
-    <p class="eyebrow">Caio Prezotto — direção criativa &amp; produção</p>
-
-    <h1 class="hero__title">
-      Da ideia ao site no ar,<br />feito por uma pessoa só.
-    </h1>
-
-    <p class="hero__lead">
-      Conceito, identidade, imagem e vídeo de campanha e a landing page
-      publicada. Um interlocutor, um padrão visual, prazo de semanas — não de
-      trimestres.
-    </p>
-
-    <div class="hero__actions">
-      <a class="btn btn--primary" href={WHATSAPP_URL} rel="noopener">
-        Chamar no WhatsApp
-      </a>
-      <a class="btn btn--ghost" href={AGENDA_URL} rel="noopener">
-        Agendar uma call de 30 min
-      </a>
+  <div class="hero__nome">
+    <div class="hero__variante hero__variante--larga">
+      {
+        umaLinha.map((linha, i) => (
+          <svg
+            class="hero__linha"
+            viewBox="0 0 1000 200"
+            role="img"
+            aria-label="Caio Prezotto"
+          >
+            <defs>
+              <filter id={`glow-w-${i}`} x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="12" />
+              </filter>
+            </defs>
+            <text
+              class="hero__texto"
+              x="500"
+              y="160"
+              text-anchor="middle"
+              textLength="1000"
+              lengthAdjust="spacingAndGlyphs"
+              filter={`url(#glow-w-${i})`}
+            >
+              {linha}
+            </text>
+            <text
+              class="hero__texto"
+              x="500"
+              y="160"
+              text-anchor="middle"
+              textLength="1000"
+              lengthAdjust="spacingAndGlyphs"
+            >
+              {linha}
+            </text>
+          </svg>
+        ))
+      }
     </div>
 
-    <ul class="hero__proof">
-      <li>3 marcas atendidas de ponta a ponta</li>
-      <li>2 sites no ar</li>
-      <li>Produção visual sem set nem produtora</li>
-    </ul>
+    <div class="hero__variante hero__variante--estreita" aria-hidden="true">
+      {
+        duasLinhas.map((linha, i) => (
+          <svg class="hero__linha" viewBox="0 0 1000 200">
+            <defs>
+              <filter id={`glow-n-${i}`} x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="12" />
+              </filter>
+            </defs>
+            <text
+              class="hero__texto"
+              x="500"
+              y="160"
+              text-anchor="middle"
+              textLength="1000"
+              lengthAdjust="spacingAndGlyphs"
+              filter={`url(#glow-n-${i})`}
+            >
+              {linha}
+            </text>
+            <text
+              class="hero__texto"
+              x="500"
+              y="160"
+              text-anchor="middle"
+              textLength="1000"
+              lengthAdjust="spacingAndGlyphs"
+            >
+              {linha}
+            </text>
+          </svg>
+        ))
+      }
+    </div>
   </div>
+
+  <nav class="hero__barra" aria-label="Atalhos">
+    <ul class="hero__links">
+      <li><a href="#trabalhos">Trabalhos</a></li>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#processo">Processo</a></li>
+    </ul>
+    <a class="hero__cta" href={WHATSAPP_URL} rel="noopener">Começar um projeto</a>
+  </nav>
 </header>
 
 <style>
   .hero {
-    border-bottom: 1px solid var(--rule);
-    background: linear-gradient(180deg, var(--paper-2), var(--paper) 70%);
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #ff3f0a;
+    overflow: hidden;
   }
 
-  .hero__inner {
-    padding-block: clamp(3.5rem, 10vw, 7.5rem) var(--section-y);
+  .hero__nome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-inline: clamp(0.5rem, 2vw, 2rem);
   }
 
-  .hero__title {
-    font-size: var(--step-display);
-    margin-block: 1.25rem 0;
+  .hero__variante--estreita {
+    display: none;
   }
 
-  .hero__lead {
-    max-width: var(--measure);
-    margin-top: 1.5rem;
-    color: var(--ink-2);
-    font-size: clamp(1.05rem, 1rem + 0.5vw, 1.3rem);
+  @media (max-width: 48rem) {
+    .hero__variante--larga {
+      display: none;
+    }
+    .hero__variante--estreita {
+      display: block;
+    }
   }
 
-  .hero__actions {
+  .hero__linha {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .hero__texto {
+    font-family: Anton, Impact, "Arial Black", "Helvetica Neue", sans-serif;
+    font-size: 190px;
+    font-weight: 400;
+    fill: #f4f0e8;
+  }
+
+  .hero__barra {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 2.5rem;
+    gap: 1rem 2rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem clamp(1rem, 4vw, 2.5rem) clamp(1.25rem, 3vw, 2rem);
   }
 
-  .hero__proof {
+  .hero__links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 2rem;
-    margin: 3rem 0 0;
-    padding: 1.25rem 0 0;
-    border-top: 1px solid var(--rule);
+    gap: 0.25rem 2rem;
+    margin: 0;
+    padding: 0;
     list-style: none;
-    font-size: var(--step-small);
-    color: var(--ink-2);
+  }
+
+  .hero__barra a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: #f4f0e8;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .hero__barra a:hover {
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
+
+  .hero__cta {
+    text-decoration: underline;
+    text-underline-offset: 5px;
   }
 </style>
