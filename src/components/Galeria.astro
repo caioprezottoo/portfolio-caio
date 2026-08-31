@@ -86,10 +86,28 @@ const projetos = [
       return Math.min(Math.max(-r.top / curso, 0), 1);
     };
 
+    const palcoDaRoda = galeria.querySelector<HTMLElement>(".galeria__palco");
+
     const quadro = () => {
-      // a galeria só começa a girar depois que a faixa terminou de entrar
-      const p = Math.max((progressoDoPalco() - 0.55) / 0.45, 0);
+      const progresso = progressoDoPalco();
+
+      // A roda começa a girar JUNTO com o deslize lateral (0.28), não depois:
+      // ela chega em movimento. A curva desacelera no fim, então o giro entra
+      // rápido e assenta.
+      const bruto = Math.min(Math.max((progresso - 0.28) / 0.72, 0), 1);
+      const p = 1 - Math.pow(1 - bruto, 2.2);
       alvo = p * velocidade * vao() * itens.length;
+
+      // durante a entrada, a roda inteira ainda está tombada e se endireita
+      if (palcoDaRoda) {
+        const entrada = Math.min(Math.max((progresso - 0.28) / 0.3, 0), 1);
+        const suave = 1 - Math.pow(1 - entrada, 3);
+        const giroDaRoda = (1 - suave) * -7;
+        const escala = 0.9 + suave * 0.1;
+        const deslocamento = (1 - suave) * 12;
+        palcoDaRoda.style.transform =
+          `translate3d(0, ${deslocamento}vh, 0) rotate(${giroDaRoda}deg) scale(${escala})`;
+      }
 
       // scrollEase: o movimento persegue o alvo em vez de colar nele
       atual += (alvo - atual) * ease;
@@ -145,6 +163,8 @@ const projetos = [
   .galeria__palco {
     position: relative;
     height: clamp(18rem, 52vh, 30rem);
+    transform-origin: 50% 120%;
+    will-change: transform;
   }
 
   .galeria__item {
