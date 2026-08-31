@@ -1,16 +1,10 @@
 ---
-// Seção de força: a frase é a imagem. Tipografia grande e apertada sobre
-// preto, com a virada da frase em laranja, grão por cima e um filete que
-// risca a seção — a linguagem do moodboard (Forté, Kuya, o cartaz vermelho).
-//
-// A entrada usa animation-timeline: view(), que é CSS puro. Onde o navegador
-// não suportar, o texto simplesmente já aparece posicionado.
-const linhas = [
-  { texto: "Sites personalizados", cor: "creme" },
-  { texto: "que cansaram", cor: "creme" },
-  { texto: "de passar", cor: "creme" },
-  { texto: "despercebidos.", cor: "destaque" },
-];
+import { Image } from "astro:assets";
+import rasgo from "../assets/rasgo.jpg";
+
+// Seção de força: a frase é a imagem. O texto abre no meio para a foto passar
+// — linha cheia em cima, duas linhas ladeando a foto, virada da frase embaixo.
+// Linguagem do moodboard: tipografia condensada grande, grão, uma cor só.
 ---
 
 <section class="forca" aria-labelledby="forca-titulo">
@@ -23,15 +17,32 @@ const linhas = [
     </p>
 
     <h2 class="forca__titulo" id="forca-titulo">
-      {
-        linhas.map((linha, i) => (
-          <span class="forca__linha" style={`--ordem: ${i}`}>
-            <span class={`forca__texto forca__texto--${linha.cor}`}>
-              {linha.texto}
-            </span>
-          </span>
-        ))
-      }
+      <span class="forca__linha forca__linha--topo">
+        <span class="forca__texto">Sites personalizados</span>
+      </span>
+
+      <span class="forca__meio">
+        <span class="forca__linha forca__linha--esq">
+          <span class="forca__texto">que cansaram</span>
+        </span>
+
+        <Image
+          class="forca__foto"
+          src={rasgo}
+          alt=""
+          widths={[394, 788]}
+          sizes="(min-width: 60rem) 24rem, 70vw"
+          loading="lazy"
+        />
+
+        <span class="forca__linha forca__linha--dir">
+          <span class="forca__texto">de passar</span>
+        </span>
+      </span>
+
+      <span class="forca__linha forca__linha--base">
+        <span class="forca__texto forca__texto--destaque">despercebidos.</span>
+      </span>
     </h2>
   </div>
 </section>
@@ -39,9 +50,9 @@ const linhas = [
 <style>
   .forca {
     position: relative;
-    background: #0d0b0a;
-    color: #f4f0e8;
-    padding-block: clamp(5rem, 14vh, 9rem);
+    background: #f4f0e8;
+    color: #16130f;
+    padding-block: clamp(4.5rem, 12vh, 8rem);
     overflow: hidden;
   }
 
@@ -50,9 +61,9 @@ const linhas = [
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.32;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    opacity: 0.22;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   }
 
   .forca__interno {
@@ -67,24 +78,32 @@ const linhas = [
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    margin: 0 0 clamp(2.5rem, 6vh, 4.5rem);
+    margin: 0 0 clamp(2rem, 5vh, 3.5rem);
     padding-bottom: 0.9rem;
-    border-bottom: 1px solid rgba(244, 240, 232, 0.22);
+    border-bottom: 1px solid rgba(22, 19, 15, 0.2);
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: rgba(244, 240, 232, 0.65);
+    color: rgba(22, 19, 15, 0.6);
   }
 
   .forca__titulo {
     margin: 0;
     font-family: "Neue Montreal", system-ui, sans-serif;
     font-weight: 600;
-    font-size: clamp(2.5rem, 7.6vw, 7rem);
+    font-size: clamp(2.25rem, 6.4vw, 5.75rem);
     line-height: 0.94;
     letter-spacing: -0.035em;
-    text-wrap: balance;
+  }
+
+  /* a faixa do meio abre espaço para a foto entre as duas linhas */
+  .forca__meio {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: clamp(0.75rem, 2vw, 2rem);
+    margin-block: 0.1em;
   }
 
   .forca__linha {
@@ -92,13 +111,26 @@ const linhas = [
     overflow: hidden;
   }
 
+  .forca__linha--esq {
+    text-align: right;
+  }
+
+  .forca__linha--dir {
+    text-align: left;
+  }
+
+  .forca__foto {
+    width: clamp(11rem, 24vw, 24rem);
+    height: auto;
+    border-radius: 2px;
+  }
+
   .forca__texto {
     display: block;
     translate: 0 100%;
     animation: subir-linha linear both;
     animation-timeline: view();
-    animation-range: entry 8% cover 34%;
-    animation-delay: calc(var(--ordem) * 0s);
+    animation-range: entry 6% cover 32%;
   }
 
   .forca__texto--destaque {
@@ -116,6 +148,26 @@ const linhas = [
     .forca__texto {
       translate: 0 0;
       animation: none;
+    }
+  }
+
+  /* Telas estreitas: tudo empilhado, a foto no meio da frase. */
+  @media (max-width: 48rem) {
+    .forca__meio {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+      justify-items: start;
+    }
+
+    .forca__linha--esq,
+    .forca__linha--dir {
+      text-align: left;
+    }
+
+    .forca__foto {
+      width: min(72vw, 20rem);
+      margin-block: 0.35em;
+      justify-self: center;
     }
   }
 
