@@ -19,7 +19,7 @@ import Galeria from "./Galeria.astro";
         <Forca />
       </div>
       <div class="palco__painel palco__painel--galeria">
-        <Galeria />
+        <Galeria bend={1} borderRadius={0.05} scrollEase={0.05} scrollSpeed={2} />
       </div>
     </div>
   </div>
@@ -69,20 +69,20 @@ import Galeria from "./Galeria.astro";
   }
 
   .palco__painel--galeria {
-    width: max-content;
-    min-width: 100vw;
+    width: 100vw;
   }
 
   @keyframes deslizar {
     /* segura a frase parada no primeiro terço: a tela congela e só depois
        o movimento lateral começa */
     0%,
-    32% {
+    30% {
       translate: 0 0;
     }
-    /* leva o trilho até o fim da galeria */
+    /* a faixa entra e para; daí em diante quem se move são os cards */
+    55%,
     100% {
-      translate: calc(-1 * (100% - 100vw)) 0;
+      translate: -100vw 0;
     }
   }
 
