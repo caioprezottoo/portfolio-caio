@@ -1,82 +1,40 @@
 ---
-import { WHATSAPP_URL } from "../data/contato";
-
 // Hero de tela cheia: o nome preenche a largura sobre o laranja, com glow
-// pulsante. Na entrada cada linha "explode" de um ponto até o tamanho final,
-// com duas cópias-fantasma atrás formando um rastro.
+// pulsante. Na entrada cada letra sobe de dentro da própria máscara
+// (masked reveal), com um atraso curto entre elas.
 // Uma linha no desktop, duas em telas estreitas — alternância só por CSS.
-const variantes = [
-  { classe: "larga", linhas: ["CAIO PREZOTTO"] },
-  { classe: "estreita", linhas: ["CAIO", "PREZOTTO"] },
-];
+// O nome fica colado na base do hero; nenhum outro texto divide a atenção.
+const palavras = ["CAIO", "PREZOTTO"];
+
+// Atraso acumulado por letra, contando as duas palavras em sequência.
+let n = 0;
+const linhas = palavras.map((palavra) => ({
+  palavra,
+  letras: [...palavra].map((letra) => ({ letra, ordem: n++ })),
+}));
 ---
 
 <header class="hero">
   <div class="hero__nome">
-    {
-      variantes.map((v) => (
-        <div class={`hero__variante hero__variante--${v.classe}`}>
-          {v.linhas.map((linha, i) => (
-            <svg
-              class="hero__linha"
-              viewBox="0 0 1000 200"
-              role={v.classe === "larga" && i === 0 ? "img" : "presentation"}
-              aria-label={
-                v.classe === "larga" && i === 0 ? "Caio Prezotto" : undefined
-              }
-              aria-hidden={v.classe === "larga" && i === 0 ? undefined : "true"}
-            >
-              {/* rastro: duas cópias atrás, levemente atrasadas */}
-              <text
-                class="hero__texto hero__texto--t2"
-                style={`--atraso: ${0.6 + i * 0.11}s`}
-                x="500"
-                y="160"
-                text-anchor="middle"
-                textLength="1000"
-                lengthAdjust="spacingAndGlyphs"
-                aria-hidden="true"
-              >
-                {linha}
-              </text>
-              <text
-                class="hero__texto hero__texto--t1"
-                style={`--atraso: ${0.55 + i * 0.11}s`}
-                x="500"
-                y="160"
-                text-anchor="middle"
-                textLength="1000"
-                lengthAdjust="spacingAndGlyphs"
-                aria-hidden="true"
-              >
-                {linha}
-              </text>
-              <text
-                class="hero__texto hero__texto--solido"
-                style={`--atraso: ${0.5 + i * 0.11}s`}
-                x="500"
-                y="160"
-                text-anchor="middle"
-                textLength="1000"
-                lengthAdjust="spacingAndGlyphs"
-              >
-                {linha}
-              </text>
-            </svg>
-          ))}
-        </div>
-      ))
-    }
+    <p class="hero__sr">Caio Prezotto</p>
+
+    <div class="hero__wordmark" aria-hidden="true">
+      {
+        linhas.map(({ palavra, letras }) => (
+          <span class={`hero__palavra hero__palavra--${palavra.length}`}>
+            {letras.map(({ letra, ordem }) => (
+              <span class="hero__mascara">
+                <span class="hero__letra" style={`--ordem: ${ordem}`}>
+                  {letra}
+                </span>
+              </span>
+            ))}
+          </span>
+        ))
+      }
+    </div>
   </div>
 
-  <nav class="hero__barra" aria-label="Atalhos">
-    <ul class="hero__links">
-      <li><a href="#trabalhos">Trabalhos</a></li>
-      <li><a href="#servicos">Serviços</a></li>
-      <li><a href="#processo">Processo</a></li>
-    </ul>
-    <a class="hero__cta" href={WHATSAPP_URL} rel="noopener">Começar um projeto</a>
-  </nav>
 </header>
 
 <style>
@@ -111,29 +69,32 @@ const variantes = [
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding-inline: clamp(0.5rem, 2vw, 2rem);
+    justify-content: flex-end;
+    padding-inline: clamp(0.5rem, 2vw, 1.5rem);
+    padding-bottom: 0;
   }
 
-  .hero__variante--estreita {
-    display: none;
+  /* O nome legível fica só para leitores de tela; o desenho é decorativo. */
+  .hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
-  @media (max-width: 48rem) {
-    .hero__variante--larga {
-      display: none;
-    }
-    .hero__variante--estreita {
-      display: block;
-    }
-  }
-
-  .hero__linha {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-    will-change: filter;
+  .hero__wordmark {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    column-gap: 0.06em;
+    font-family: Anton, Impact, "Arial Black", "Helvetica Neue", sans-serif;
+    font-size: 20vw;
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+    color: #f4f0e8;
     --glow-1: 5px;
     --glow-2: 16px;
     --glow-3: 40px;
@@ -141,35 +102,34 @@ const variantes = [
       drop-shadow(0 0 var(--glow-2) rgba(255, 255, 255, 0.4))
       drop-shadow(0 0 var(--glow-3) rgba(255, 255, 255, 0.2));
     animation: glow 8.5s cubic-bezier(0.37, 0, 0.63, 1) 1.9s infinite;
+    will-change: filter;
+    /* sangra pela borda de baixo: o nome parece sair da tela */
+    margin-bottom: -0.13em;
   }
 
-  .hero__texto {
-    font-family: Anton, Impact, "Arial Black", "Helvetica Neue", sans-serif;
-    font-size: 190px;
-    font-weight: 400;
-    fill: #f4f0e8;
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: expandir 0.82s cubic-bezier(0.16, 1.28, 0.3, 1) var(--atraso, 0.5s)
-      both;
+  .hero__palavra {
+    display: flex;
   }
 
-  .hero__texto--solido {
-    animation:
-      surgir 0.22s ease-out both,
-      expandir 0.82s cubic-bezier(0.16, 1.28, 0.3, 1) var(--atraso, 0.5s) both;
+  /* Cada letra sobe de dentro da própria máscara. */
+  .hero__mascara {
+    display: block;
+    overflow: hidden;
+    /* espaço para as descidas do glifo não serem cortadas */
+    padding-bottom: 0.08em;
   }
 
-  .hero__texto--t1 {
-    animation:
-      expandir 0.82s cubic-bezier(0.16, 1.28, 0.3, 1) var(--atraso) both,
-      rastro 0.82s ease-out var(--atraso) both;
+  .hero__letra {
+    display: block;
+    translate: 0 105%;
+    animation: revelar 0.9s cubic-bezier(0.22, 1, 0.36, 1)
+      calc(0.25s + var(--ordem) * 0.04s) both;
   }
 
-  .hero__texto--t2 {
-    animation:
-      expandir 0.82s cubic-bezier(0.16, 1.28, 0.3, 1) var(--atraso) both,
-      rastro-fraco 0.82s ease-out var(--atraso) both;
+  @keyframes revelar {
+    to {
+      translate: 0 0;
+    }
   }
 
   @keyframes glow {
@@ -186,96 +146,32 @@ const variantes = [
     }
   }
 
-  @keyframes expandir {
-    from {
-      scale: 0.02;
+  /* Telas estreitas: uma palavra por linha, cada uma preenchendo a largura. */
+  @media (max-width: 48rem) {
+    .hero__wordmark {
+      flex-direction: column;
+      align-items: stretch;
+      font-size: 26vw;
+      row-gap: 0.02em;
     }
-    to {
-      scale: 1;
-    }
-  }
 
-  @keyframes surgir {
-    from {
-      opacity: 0;
+    .hero__palavra {
+      justify-content: space-between;
     }
-    to {
-      opacity: 1;
-    }
-  }
 
-  @keyframes rastro {
-    0% {
-      opacity: 0;
-    }
-    20% {
-      opacity: 0.34;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-
-  @keyframes rastro-fraco {
-    0% {
-      opacity: 0;
-    }
-    20% {
-      opacity: 0.17;
-    }
-    100% {
-      opacity: 0;
+    .hero__palavra--4 {
+      font-size: 2.02em;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero__linha,
-    .hero__texto {
+    .hero__wordmark {
       animation: none;
     }
-    .hero__texto--t1,
-    .hero__texto--t2 {
-      display: none;
+    .hero__letra {
+      animation: none;
+      translate: 0 0;
     }
   }
 
-  .hero__barra {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem 2rem;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem clamp(1rem, 4vw, 2.5rem) clamp(1.25rem, 3vw, 2rem);
-  }
-
-  .hero__links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 2rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .hero__barra a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    color: #f4f0e8;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    text-decoration: none;
-  }
-
-  .hero__barra a:hover {
-    text-decoration: underline;
-    text-underline-offset: 5px;
-  }
-
-  .hero__cta {
-    text-decoration: underline;
-    text-underline-offset: 5px;
-  }
 </style>
