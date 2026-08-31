@@ -128,7 +128,8 @@ const projetos = [
         const y = bend * d * d * (galeria.clientHeight * 0.12);
         const giro = bend * d * 5;
 
-        item.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${giro}deg)`;
+        item.style.transform =
+          `translate3d(${x}px, calc(-50% + ${y}px), 0) rotate(${giro}deg)`;
       }
 
       requestAnimationFrame(quadro);
@@ -169,7 +170,9 @@ const projetos = [
 
   .galeria__item {
     position: absolute;
-    top: 0;
+    /* ancorado no meio do palco: o arco desloca a partir do centro, em vez
+       de empurrar a faixa inteira para baixo */
+    top: 50%;
     left: 0;
     width: clamp(11rem, 20vw, 17rem);
     will-change: transform;
