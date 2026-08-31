@@ -35,8 +35,8 @@ const comparacoes = [
       rotulo: "Referência",
     },
     depois: {
-      img: capDepois,
-      alt: "Boné da The Basic renderizado em três quartos",
+      video: "/videos/ia-cap.mp4",
+      alt: "Filme de campanha do boné da The Basic",
       rotulo: "Resultado",
     },
     nota: "Um boné vira catálogo de oito ângulos.",
@@ -45,13 +45,13 @@ const comparacoes = [
     cliente: "Orbis",
     oQue: "Captação ampliada",
     antes: {
-      img: orbisAntes,
-      alt: "Frame do vídeo original, gravado no celular",
+      video: "/videos/ia-orbis-antes.mp4",
+      alt: "Vídeo original da gráfica, gravado no celular",
       rotulo: "Captação no celular",
     },
     depois: {
-      img: orbisDepois,
-      alt: "Mesmo frame estendido para widescreen",
+      video: "/videos/ia-orbis-depois.mp4",
+      alt: "Mesmo plano estendido para widescreen",
       rotulo: "Resultado",
     },
     nota: "Vertical de celular vira widescreen de campanha.",
@@ -93,26 +93,50 @@ const comparacoes = [
           <li class="ia__bloco">
             <div class="ia__par">
               <figure class="ia__quadro">
-                <Image
-                  src={c.antes.img}
-                  alt={c.antes.alt}
-                  widths={[480, 960]}
-                  sizes="(min-width: 60rem) 34vw, 88vw"
-                  loading="lazy"
-                />
+                {c.antes.video ? (
+                  <video
+                    src={c.antes.video}
+                    aria-label={c.antes.alt}
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                  />
+                ) : (
+                  <Image
+                    src={c.antes.img}
+                    alt={c.antes.alt}
+                    widths={[480, 960]}
+                    sizes="(min-width: 60rem) 34vw, 88vw"
+                    loading="lazy"
+                  />
+                )}
                 <figcaption>{c.antes.rotulo}</figcaption>
               </figure>
 
               <span class="ia__seta" aria-hidden="true">→</span>
 
               <figure class="ia__quadro ia__quadro--resultado">
-                <Image
-                  src={c.depois.img}
-                  alt={c.depois.alt}
-                  widths={[480, 960]}
-                  sizes="(min-width: 60rem) 34vw, 88vw"
-                  loading="lazy"
-                />
+                {c.depois.video ? (
+                  <video
+                    src={c.depois.video}
+                    aria-label={c.depois.alt}
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                  />
+                ) : (
+                  <Image
+                    src={c.depois.img}
+                    alt={c.depois.alt}
+                    widths={[480, 960]}
+                    sizes="(min-width: 60rem) 34vw, 88vw"
+                    loading="lazy"
+                  />
+                )}
                 <figcaption>{c.depois.rotulo}</figcaption>
               </figure>
             </div>
@@ -243,7 +267,9 @@ const comparacoes = [
     margin: 0;
   }
 
-  .ia__quadro img {
+  .ia__quadro img,
+  .ia__quadro video {
+    display: block;
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
@@ -253,7 +279,8 @@ const comparacoes = [
     opacity: 0.72;
   }
 
-  .ia__quadro--resultado img {
+  .ia__quadro--resultado img,
+  .ia__quadro--resultado video {
     filter: none;
     opacity: 1;
   }
