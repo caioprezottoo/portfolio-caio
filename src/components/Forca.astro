@@ -1,0 +1,128 @@
+---
+// Seção de força: a frase é a imagem. Tipografia grande e apertada sobre
+// preto, com a virada da frase em laranja, grão por cima e um filete que
+// risca a seção — a linguagem do moodboard (Forté, Kuya, o cartaz vermelho).
+//
+// A entrada usa animation-timeline: view(), que é CSS puro. Onde o navegador
+// não suportar, o texto simplesmente já aparece posicionado.
+const linhas = [
+  { texto: "Sites personalizados", cor: "creme" },
+  { texto: "que cansaram", cor: "creme" },
+  { texto: "de passar", cor: "creme" },
+  { texto: "despercebidos.", cor: "destaque" },
+];
+---
+
+<section class="forca" aria-labelledby="forca-titulo">
+  <div class="forca__grao" aria-hidden="true"></div>
+
+  <div class="forca__interno">
+    <p class="forca__marca" aria-hidden="true">
+      <span>Caio Prezotto</span>
+      <span>Est. 2026</span>
+    </p>
+
+    <h2 class="forca__titulo" id="forca-titulo">
+      {
+        linhas.map((linha, i) => (
+          <span class="forca__linha" style={`--ordem: ${i}`}>
+            <span class={`forca__texto forca__texto--${linha.cor}`}>
+              {linha.texto}
+            </span>
+          </span>
+        ))
+      }
+    </h2>
+  </div>
+</section>
+
+<style>
+  .forca {
+    position: relative;
+    background: #0d0b0a;
+    color: #f4f0e8;
+    padding-block: clamp(5rem, 14vh, 9rem);
+    overflow: hidden;
+  }
+
+  /* grão: ruído gerado no próprio CSS, sem requisição nem imagem */
+  .forca__grao {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.32;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  .forca__interno {
+    position: relative;
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 5vw, 4rem);
+  }
+
+  .forca__marca {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 clamp(2.5rem, 6vh, 4.5rem);
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid rgba(244, 240, 232, 0.22);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(244, 240, 232, 0.65);
+  }
+
+  .forca__titulo {
+    margin: 0;
+    font-family: "Neue Montreal", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: clamp(2.5rem, 7.6vw, 7rem);
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .forca__linha {
+    display: block;
+    overflow: hidden;
+  }
+
+  .forca__texto {
+    display: block;
+    translate: 0 100%;
+    animation: subir-linha linear both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 34%;
+    animation-delay: calc(var(--ordem) * 0s);
+  }
+
+  .forca__texto--destaque {
+    color: #ff3f0a;
+  }
+
+  @keyframes subir-linha {
+    to {
+      translate: 0 0;
+    }
+  }
+
+  /* Sem suporte a scroll-driven animations, o texto já nasce no lugar. */
+  @supports not (animation-timeline: view()) {
+    .forca__texto {
+      translate: 0 0;
+      animation: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .forca__texto {
+      translate: 0 0;
+      animation: none;
+    }
+  }
+</style>
