@@ -13,12 +13,14 @@ import rasgo from "../assets/rasgo.jpg";
   <div class="forca__interno">
     <h2 class="forca__titulo" id="forca-titulo">
       <span class="forca__topo">
-        <span class="forca__texto">Sites personalizados que</span>
+        <span class="forca__texto" style="--ordem: 0">
+          Sites personalizados que
+        </span>
       </span>
 
       <span class="forca__esq">
-        <span class="forca__texto">cansaram</span>
-        <span class="forca__texto">de passar</span>
+        <span class="forca__texto" style="--ordem: 1">cansaram</span>
+        <span class="forca__texto" style="--ordem: 2">de passar</span>
       </span>
 
       <Image
@@ -31,11 +33,38 @@ import rasgo from "../assets/rasgo.jpg";
       />
 
       <span class="forca__base">
-        <span class="forca__texto forca__texto--destaque">despercebidos.</span>
+        <span class="forca__texto forca__texto--destaque" style="--ordem: 3">
+          despercebidos.
+        </span>
       </span>
     </h2>
   </div>
 </section>
+
+<script>
+  // Arma o estado inicial só quando há JS e dispara a entrada uma única vez.
+  const secao = document.querySelector<HTMLElement>(".forca");
+  const querMenosMovimento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (secao && !querMenosMovimento) {
+    secao.classList.add("forca--armada");
+
+    const observador = new IntersectionObserver(
+      (entradas) => {
+        for (const entrada of entradas) {
+          if (!entrada.isIntersecting) continue;
+          secao.classList.add("forca--visivel");
+          observador.disconnect();
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    observador.observe(secao);
+  }
+</script>
 
 <style>
   .forca {
@@ -74,7 +103,7 @@ import rasgo from "../assets/rasgo.jpg";
     margin: 0;
     font-family: "Neue Montreal", system-ui, sans-serif;
     font-weight: 600;
-    font-size: clamp(1.9rem, 5vw, 4.5rem);
+    font-size: clamp(2rem, 6.2vw, 5.5rem);
     line-height: 1.05;
     letter-spacing: -0.035em;
   }
@@ -94,9 +123,12 @@ import rasgo from "../assets/rasgo.jpg";
 
   .forca__foto {
     grid-column: 2;
-    width: clamp(12rem, 32vw, 22rem);
+    width: clamp(12rem, 31vw, 23rem);
     height: auto;
     border-radius: 14px;
+    /* recuada em relação ao texto: a linha de destaque passa da foto,
+       como na referência */
+    margin-right: clamp(0rem, 15vw, 12rem);
   }
 
   /* a virada da frase: embaixo, à direita e maior que o resto */
@@ -104,20 +136,29 @@ import rasgo from "../assets/rasgo.jpg";
     grid-column: 1 / -1;
     display: block;
     text-align: right;
-    font-size: 1.12em;
-    margin-top: 0.1em;
+    font-size: 1.3em;
+    margin-top: 0.05em;
   }
 
-  /* blur reveal: cada linha entra desfocada e ganha foco conforme sobe */
   .forca__texto {
     display: block;
+  }
+
+  /* Blur reveal: dispara UMA vez quando a seção entra em cena, e roda até o
+     fim sozinha. Atrelar ao scroll (view timeline) deixava o texto preso no
+     meio do foco enquanto se rola devagar, e desfocando de novo ao voltar.
+     O estado inicial só é aplicado quando o script assume — sem JS o texto
+     nasce nítido e visível. */
+  .forca--armada .forca__texto {
     opacity: 0;
-    translate: 0 14px;
-    filter: blur(16px);
+    translate: 0 18px;
+    filter: blur(18px);
     will-change: filter, opacity;
-    animation: focar linear both;
-    animation-timeline: view();
-    animation-range: entry 4% cover 34%;
+  }
+
+  .forca--visivel .forca__texto {
+    animation: focar 0.9s cubic-bezier(0.22, 1, 0.36, 1)
+      calc(var(--ordem, 0) * 0.11s) both;
   }
 
   .forca__texto--destaque {
@@ -129,16 +170,6 @@ import rasgo from "../assets/rasgo.jpg";
       opacity: 1;
       translate: 0 0;
       filter: blur(0);
-    }
-  }
-
-  /* Sem suporte a scroll-driven animations, o texto já nasce no lugar. */
-  @supports not (animation-timeline: view()) {
-    .forca__texto {
-      opacity: 1;
-      translate: 0 0;
-      filter: none;
-      animation: none;
     }
   }
 
@@ -168,7 +199,8 @@ import rasgo from "../assets/rasgo.jpg";
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .forca__texto {
+    .forca--armada .forca__texto,
+    .forca--visivel .forca__texto {
       opacity: 1;
       translate: 0 0;
       filter: none;
