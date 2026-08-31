@@ -32,6 +32,13 @@ const ogImage = Astro.site ? new URL(image, Astro.site).href : undefined;
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="generator" content={Astro.generator} />
 
+    <link
+      rel="preload"
+      href="/fonts/neue-montreal-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
