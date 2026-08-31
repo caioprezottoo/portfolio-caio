@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import barbeariaAntes from "../assets/ia/barbearia-antes.jpg";
+import barbeariaAntes2 from "../assets/ia/barbearia-antes-2.jpg";
 import barbeariaDepois from "../assets/ia/barbearia-depois.jpg";
 import capAntes from "../assets/ia/cap-antes.jpg";
 import capDepois from "../assets/ia/cap-depois.jpg";
@@ -15,9 +16,12 @@ const comparacoes = [
     cliente: "Mister N’s",
     oQue: "Cena de atendimento",
     antes: {
-      img: barbeariaAntes,
-      alt: "Salão da barbearia vazio, foto do próprio cliente",
-      rotulo: "Foto do salão",
+      // duas fotos do cliente entram juntas para gerar uma única cena
+      imgs: [
+        { img: barbeariaAntes, alt: "Salão da barbearia vazio" },
+        { img: barbeariaAntes2, alt: "Barbeiro secando o cabelo de um cliente" },
+      ],
+      rotulo: "Duas fotos do cliente",
     },
     depois: {
       img: barbeariaDepois,
@@ -77,12 +81,11 @@ const comparacoes = [
 
   <div class="ia__interno">
     <header class="ia__cabecalho">
-      <p class="ia__olho">Publicidade com IA</p>
       <h2 class="ia__titulo" id="ia-titulo">
         Além do site, eu produzo a campanha.
       </h2>
       <p class="ia__lead">
-        O material de origem é o que o cliente já tem — uma foto do salão, um
+        O material de origem é o que o cliente já tem — as fotos do salão, um
         boné na mesa, um vídeo de celular. O que sai é peça de campanha.
       </p>
     </header>
@@ -93,7 +96,7 @@ const comparacoes = [
           <li class="ia__bloco">
             <div class="ia__par">
               <figure class="ia__quadro">
-                {c.antes.video ? (
+                {c.antes.video && (
                   <video
                     src={c.antes.video}
                     aria-label={c.antes.alt}
@@ -103,7 +106,23 @@ const comparacoes = [
                     playsinline
                     preload="metadata"
                   />
-                ) : (
+                )}
+
+                {c.antes.imgs && (
+                  <span class="ia__duas">
+                    {c.antes.imgs.map((f) => (
+                      <Image
+                        src={f.img}
+                        alt={f.alt}
+                        widths={[300, 600]}
+                        sizes="(min-width: 60rem) 17vw, 44vw"
+                        loading="lazy"
+                      />
+                    ))}
+                  </span>
+                )}
+
+                {c.antes.img && (
                   <Image
                     src={c.antes.img}
                     alt={c.antes.alt}
@@ -219,18 +238,9 @@ const comparacoes = [
     padding-inline: clamp(1.25rem, 6vw, 5rem);
   }
 
-  .ia__olho {
-    margin: 0;
-    font-family: "Neue Montreal", system-ui, sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(244, 240, 232, 0.55);
-  }
 
   .ia__titulo {
-    margin: 0.9rem 0 0;
+    margin: 0;
     font-family: "Neue Montreal", system-ui, sans-serif;
     font-weight: 600;
     font-size: clamp(1.9rem, 4.4vw, 3.6rem);
@@ -283,6 +293,17 @@ const comparacoes = [
   .ia__quadro--resultado video {
     filter: none;
     opacity: 1;
+  }
+
+  /* duas fotos de origem dividem o mesmo quadro */
+  .ia__duas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .ia__duas img {
+    aspect-ratio: 8 / 9;
   }
 
   .ia__quadro figcaption {
