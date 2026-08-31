@@ -113,8 +113,10 @@ const linhas = palavras.map((palavra) => ({
       impacto 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) 0.86s both,
       glow 8.5s cubic-bezier(0.37, 0, 0.63, 1) 1.9s infinite;
     will-change: filter, scale;
-    /* sangra pela borda de baixo: o nome parece sair da tela */
-    margin-bottom: -0.13em;
+    /* sangra pela borda de baixo: o nome parece sair da tela.
+       Só um fio das letras fica de fora — cortar mais que isso descaracteriza
+       os glifos (o C e o O viram formas achatadas). */
+    margin-bottom: -0.04em;
   }
 
   .hero__palavra {
