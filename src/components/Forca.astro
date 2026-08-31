@@ -108,23 +108,27 @@ import rasgo from "../assets/rasgo.jpg";
     margin-top: 0.1em;
   }
 
+  /* blur reveal: cada linha entra desfocada e ganha foco conforme sobe */
   .forca__texto {
     display: block;
     opacity: 0;
     translate: 0 14px;
-    animation: subir-linha linear both;
+    filter: blur(16px);
+    will-change: filter, opacity;
+    animation: focar linear both;
     animation-timeline: view();
-    animation-range: entry 6% cover 30%;
+    animation-range: entry 4% cover 34%;
   }
 
   .forca__texto--destaque {
     color: #ff3f0a;
   }
 
-  @keyframes subir-linha {
+  @keyframes focar {
     to {
       opacity: 1;
       translate: 0 0;
+      filter: blur(0);
     }
   }
 
@@ -133,6 +137,7 @@ import rasgo from "../assets/rasgo.jpg";
     .forca__texto {
       opacity: 1;
       translate: 0 0;
+      filter: none;
       animation: none;
     }
   }
@@ -166,6 +171,7 @@ import rasgo from "../assets/rasgo.jpg";
     .forca__texto {
       opacity: 1;
       translate: 0 0;
+      filter: none;
       animation: none;
     }
   }
