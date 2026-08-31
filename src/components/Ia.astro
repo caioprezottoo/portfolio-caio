@@ -67,13 +67,16 @@ const comparacoes = [
   <div class="ia__pontos" aria-hidden="true"></div>
 
   <div class="ia__curva" aria-hidden="true">
-    <svg viewBox="0 0 1600 400" preserveAspectRatio="xMidYMid slice">
+    <svg viewBox="0 0 600 600">
       <defs>
-        <path id="arco" d="M -400 330 Q 800 60 2000 330" fill="none"></path>
+        <path
+          id="anel"
+          d="M 300,300 m -240,0 a 240,240 0 1,1 480,0 a 240,240 0 1,1 -480,0"
+          fill="none"></path>
       </defs>
       <text class="ia__curvaTexto">
-        <textPath href="#arco" startOffset="0%">
-          Built by me. Built by me. Built by me. Built by me. Built by me.
+        <textPath href="#anel" startOffset="0%">
+          Built by me. · Built by me. · Built by me. · Built by me. ·
         </textPath>
       </text>
     </svg>
@@ -197,7 +200,7 @@ const comparacoes = [
     mask-image: radial-gradient(120% 90% at 50% 40%, #000 40%, transparent 100%);
   }
 
-  /* o texto curvo atravessa o fundo, da esquerda para a direita */
+  /* o texto corre em círculo no fundo, girando devagar */
   .ia__curva {
     position: absolute;
     inset: 0;
@@ -208,25 +211,27 @@ const comparacoes = [
   }
 
   .ia__curva svg {
-    width: 190%;
+    width: clamp(28rem, 62vw, 52rem);
     height: auto;
   }
 
   .ia__curvaTexto {
     font-family: "Neue Montreal", system-ui, sans-serif;
-    font-size: 96px;
+    font-size: 46px;
     font-weight: 600;
-    letter-spacing: 0.06em;
-    fill: rgba(244, 240, 232, 0.07);
-    animation: correr 26s linear infinite;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    fill: rgba(244, 240, 232, 0.09);
+    transform-origin: 300px 300px;
+    animation: girar 44s linear infinite;
   }
 
-  @keyframes correr {
+  @keyframes girar {
     from {
-      transform: translateX(-14%);
+      transform: rotate(0deg);
     }
     to {
-      transform: translateX(14%);
+      transform: rotate(360deg);
     }
   }
 
