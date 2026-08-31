@@ -216,11 +216,17 @@ const projetos = [
 
       atual += (alvo - atual) * ease;
 
-      // o título só existe enquanto a roda está longe da seção
+      // O título só aparece quando a tela é dos cards: enquanto qualquer
+      // pedaço relevante da seção estiver em cena, ele fica escondido.
       if (titulo) {
-        const distanciaDaSecao = Math.min(posicao, itens.length - posicao);
+        const r = itens[0].getBoundingClientRect();
+        const largura = roda.clientWidth;
+        const naTela =
+          Math.max(0, Math.min(r.right, largura) - Math.max(r.left, 0)) /
+          largura;
+        // cheio enquanto a seção ocupa até 30% da tela; some ao passar de 50%
         titulo.style.opacity = String(
-          Math.min(Math.max(distanciaDaSecao / 0.6, 0), 1),
+          Math.min(Math.max((0.5 - naTela) / 0.2, 0), 1),
         );
       }
 
