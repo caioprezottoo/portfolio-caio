@@ -40,6 +40,7 @@ const projetos = [
     alt: "Marca The Basic",
     link: "https://the-basic-astro-2.vercel.app",
     fundo: "#f1ece2",
+    video: "/videos/the-basic.mp4",
   },
   {
     nome: "Orbis",
@@ -49,6 +50,7 @@ const projetos = [
     alt: "Marca Orbis Indústria Gráfica",
     link: "https://orbis-liart-seven.vercel.app",
     fundo: "#eef4fb",
+    video: "/videos/orbis.mp4",
   },
   {
     nome: "Mister N's",
@@ -58,6 +60,7 @@ const projetos = [
     alt: "Marca Mister N's Barbershop",
     link: null,
     fundo: "#14120f",
+    video: null,
   },
 ];
 ---
@@ -97,7 +100,24 @@ const projetos = [
                   sizes="(min-width: 60rem) 17rem, 60vw"
                   loading="lazy"
                 />
-                <span class="roda__n">{String(i + 1).padStart(2, "0")}</span>
+                {projeto.video && (
+                  <span class="roda__dica" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="9" height="9">
+                      <path d="M8 5v14l11-7z" fill="currentColor"></path>
+                    </svg>
+                    Ver
+                  </span>
+                )}
+                {projeto.video && (
+                  <video
+                    class="roda__video"
+                    src={projeto.video}
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                  />
+                )}
                 {projeto.link && <span class="roda__ver">Ver o site →</span>}
               </Etiqueta>
               <p class="roda__legenda">
@@ -162,12 +182,32 @@ const projetos = [
 
     const quadro = () => {
       const p = progressoDoPalco();
+      const meio = roda.clientWidth / 2;
+
       // uma volta inteira na roda ao longo do palco
-      const alvo = partida + p * velocidade * comprimento;
+      const alvoLinear = partida + p * velocidade * comprimento;
+
+      // Ímã: cada item tem uma posição em que fica centrado. O alvo é puxado
+      // para a mais próxima, então a roda desacelera e "trava de leve" com um
+      // card no meio, em vez de passar reto por todos.
+      let encaixe = alvoLinear;
+      let menorDistancia = Infinity;
+
+      itens.forEach((item, i) => {
+        const centro = posicoes[i] + item.offsetWidth / 2 - meio;
+        // traz o encaixe para a mesma volta em que o alvo está
+        const volta = Math.round((alvoLinear - centro) / comprimento);
+        const candidato = centro + volta * comprimento;
+        const distancia = Math.abs(candidato - alvoLinear);
+        if (distancia < menorDistancia) {
+          menorDistancia = distancia;
+          encaixe = candidato;
+        }
+      });
+
+      const alvo = alvoLinear + (encaixe - alvoLinear) * 0.42;
 
       atual += (alvo - atual) * ease;
-
-      const meio = roda.clientWidth / 2;
 
       itens.forEach((item, i) => {
         let x = (posicoes[i] - atual) % comprimento;
@@ -187,6 +227,21 @@ const projetos = [
     };
 
     requestAnimationFrame(quadro);
+
+    // o vídeo só roda enquanto o ponteiro está no card
+    for (const card of document.querySelectorAll<HTMLElement>(".roda__card")) {
+      const video = card.querySelector<HTMLVideoElement>(".roda__video");
+      if (!video) continue;
+
+      card.addEventListener("pointerenter", () => {
+        video.play().catch(() => {});
+      });
+
+      card.addEventListener("pointerleave", () => {
+        video.pause();
+        video.currentTime = 0;
+      });
+    }
   }
 </script>
 
@@ -247,6 +302,51 @@ const projetos = [
     text-decoration: none;
   }
 
+  /* pista de que há vídeo esperando: some assim que o hover começa */
+  .roda__dica {
+    position: absolute;
+    left: 0.85rem;
+    bottom: 0.85rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.55rem 0.25rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(13, 11, 10, 0.55);
+    color: #f4f0e8;
+    font-family: "Neue Montreal", system-ui, sans-serif;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+  }
+
+  .roda__card:hover .roda__dica {
+    opacity: 0;
+  }
+
+  /* o vídeo cobre o card no hover; a marca sai de cena */
+  .roda__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .roda__card:hover .roda__video {
+    opacity: 1;
+  }
+
+  .roda__card:hover .roda__logo {
+    opacity: 0;
+  }
+
   /* a marca respira dentro do card, sem cobrir a borda */
   .roda__logo {
     width: 62%;
@@ -256,16 +356,9 @@ const projetos = [
     margin: auto;
     position: absolute;
     inset: 0;
+    transition: opacity 0.35s ease;
   }
 
-  .roda__n {
-    position: absolute;
-    top: 0.85rem;
-    left: 0.95rem;
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.85);
-  }
 
   .roda__ver {
     position: absolute;
@@ -291,16 +384,7 @@ const projetos = [
   }
 
   .roda__legenda,
-  .roda__n {
-    font-family: "Neue Montreal", system-ui, sans-serif;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-  }
 
-  .roda__n {
-    color: rgba(13, 11, 10, 0.55);
-  }
 
   .roda__legenda {
     display: flex;
