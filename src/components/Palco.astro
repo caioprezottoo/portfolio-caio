@@ -1,37 +1,153 @@
 ---
 import Forca from "./Forca.astro";
-import Galeria from "./Galeria.astro";
 
-// Palco: enquanto a página rola, a tela fica presa (sticky) e o scroll vira
-// movimento lateral — a seção de força sai pela esquerda e a galeria entra
-// pela direita. A sensação é de congelamento, não de descida.
+// A seção de força é o PRIMEIRO item da roda — não um painel separado.
+// Todos os itens (a seção e os cards de projeto) ficam no mesmo arco: quando
+// a roda gira, ela leva a seção embora e traz os cards para o lugar dela.
 //
-// O motor é scroll-driven animation em CSS: o palco declara uma view-timeline
-// e o trilho anima o próprio translate ao longo dela. Zero JS.
-// Sem suporte, o bloco vira fluxo normal: seção em cima, galeria embaixo com
-// rolagem horizontal própria — nada fica inacessível.
+// O palco é alto e a tela fica presa em sticky, então rolar não faz a página
+// descer: faz a roda girar.
+interface Props {
+  /** curvatura do arco: 0 = reto, 1 = curva cheia */
+  bend?: number;
+  /** raio dos cantos dos cards, em fração da largura */
+  borderRadius?: number;
+  /** o quanto o movimento persegue o scroll: menor = mais preguiçoso */
+  scrollEase?: number;
+  /** quantas voltas o scroll dá na roda */
+  scrollSpeed?: number;
+}
+
+const {
+  bend = 1,
+  borderRadius = 0.05,
+  scrollEase = 0.07,
+  scrollSpeed = 1,
+} = Astro.props;
+
+const projetos = [
+  { nome: "The Basic", tipo: "Moda" },
+  { nome: "Orbis", tipo: "Indústria" },
+  { nome: "Mister N's", tipo: "Serviço" },
+  { nome: "Em breve", tipo: "—" },
+  { nome: "Em breve", tipo: "—" },
+];
 ---
 
-<section class="palco" aria-label="Trabalhos">
+<section
+  class="palco"
+  aria-label="Trabalhos"
+  data-bend={bend}
+  data-ease={scrollEase}
+  data-velocidade={scrollSpeed}
+  style={`--raio: ${borderRadius}`}
+>
   <div class="palco__tela">
     <div class="palco__grao" aria-hidden="true"></div>
-    <div class="palco__trilho">
-      <div class="palco__painel palco__painel--forca">
+
+    <div class="roda">
+      <article class="roda__item roda__item--secao">
         <Forca />
-      </div>
-      <div class="palco__painel palco__painel--galeria">
-        <Galeria bend={1} borderRadius={0.05} scrollEase={0.05} scrollSpeed={0.85} />
-      </div>
+      </article>
+
+      {
+        projetos.map((projeto, i) => (
+          <article class="roda__item roda__item--card">
+            <div class="roda__card">
+              <span class="roda__n">{String(i + 1).padStart(2, "0")}</span>
+            </div>
+            <p class="roda__legenda">
+              <span>{projeto.nome}</span>
+              <span class="roda__tipo">{projeto.tipo}</span>
+            </p>
+          </article>
+        ))
+      }
     </div>
   </div>
 </section>
 
+<script>
+  const palco = document.querySelector<HTMLElement>(".palco");
+  const roda = document.querySelector<HTMLElement>(".roda");
+  const itens = [...document.querySelectorAll<HTMLElement>(".roda__item")];
+
+  const querMenosMovimento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (palco && roda && itens.length && !querMenosMovimento) {
+    const bend = Number(palco.dataset.bend ?? 1);
+    const ease = Number(palco.dataset.ease ?? 0.07);
+    const velocidade = Number(palco.dataset.velocidade ?? 1);
+
+    const VAO = 64; // respiro entre itens da roda
+
+    let posicoes: number[] = [];
+    let comprimento = 0;
+    let partida = 0;
+
+    // Os itens têm larguras diferentes (a seção é do tamanho da tela, os cards
+    // são pequenos), então as posições são acumuladas, não múltiplas de um vão.
+    const medir = () => {
+      posicoes = [];
+      let x = 0;
+      for (const item of itens) {
+        posicoes.push(x);
+        x += item.offsetWidth + VAO;
+      }
+      comprimento = x;
+      // a roda começa com a seção centralizada na tela
+      partida =
+        posicoes[0] + itens[0].offsetWidth / 2 - roda.clientWidth / 2;
+    };
+
+    medir();
+    window.addEventListener("resize", medir);
+
+    let atual = partida;
+
+    const progressoDoPalco = () => {
+      const r = palco.getBoundingClientRect();
+      const curso = palco.offsetHeight - window.innerHeight;
+      if (curso <= 0) return 0;
+      return Math.min(Math.max(-r.top / curso, 0), 1);
+    };
+
+    const quadro = () => {
+      const p = progressoDoPalco();
+      // uma volta inteira na roda ao longo do palco
+      const alvo = partida + p * velocidade * comprimento;
+
+      atual += (alvo - atual) * ease;
+
+      const meio = roda.clientWidth / 2;
+
+      itens.forEach((item, i) => {
+        let x = (posicoes[i] - atual) % comprimento;
+        if (x < -item.offsetWidth - VAO) x += comprimento;
+        if (x > comprimento - item.offsetWidth) x -= comprimento;
+
+        // arco: a distância do centro empurra o item para baixo e o inclina
+        const d = (x + item.offsetWidth / 2 - meio) / meio;
+        const y = bend * d * d * (roda.clientHeight * 0.16);
+        const giro = bend * d * 9;
+
+        item.style.transform =
+          `translate3d(${x}px, calc(-50% + ${y}px), 0) rotate(${giro}deg)`;
+      });
+
+      requestAnimationFrame(quadro);
+    };
+
+    requestAnimationFrame(quadro);
+  }
+</script>
+
 <style>
   .palco {
-    /* quanto mais alto, mais scroll é preciso para atravessar o palco */
+    /* quanto mais alto, mais scroll é preciso para girar a roda inteira */
     height: 520vh;
-    view-timeline-name: --palco;
-    view-timeline-axis: block;
     background: #fff;
   }
 
@@ -42,8 +158,7 @@ import Galeria from "./Galeria.astro";
     overflow: hidden;
   }
 
-  /* o grão cobre o palco inteiro — se ficasse só na seção, a borda dele
-     viraria uma divisória visível durante a transição */
+  /* o grão cobre o palco inteiro — dentro de um item viraria uma divisória */
   .palco__grao {
     position: absolute;
     inset: 0;
@@ -54,92 +169,61 @@ import Galeria from "./Galeria.astro";
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   }
 
-  .palco__trilho {
-    display: flex;
+  .roda {
+    position: relative;
     height: 100%;
-    width: max-content;
-    animation: deslizar linear both;
-    animation-timeline: --palco;
-    /* o movimento acontece só enquanto o palco cobre a tela inteira */
-    animation-range: contain 0% contain 100%;
   }
 
-  .palco__painel {
+  .roda__item {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    will-change: transform;
+  }
+
+  /* a seção ocupa a tela inteira; é o item que está em cena no começo */
+  .roda__item--secao {
     width: 100vw;
-    height: 100%;
-    flex: 0 0 auto;
   }
 
-  /* a seção precisa ocupar a largura inteira do painel: como item de flex
-     ela encolhia para o tamanho do conteúdo e ficava colada à esquerda */
-  .palco__painel--forca {
+  .roda__item--card {
+    width: clamp(11rem, 20vw, 17rem);
+  }
+
+  .roda__card {
     display: grid;
-    align-content: center;
+    place-items: end start;
+    aspect-ratio: 3 / 4;
+    padding: 1rem;
+    border-radius: calc(var(--raio, 0.05) * 100%);
+    background: linear-gradient(160deg, #e7e2d8, #d3ccc0);
+    box-shadow: 0 18px 40px rgba(13, 11, 10, 0.12);
   }
 
-  .palco__painel--forca > :global(.forca) {
-    width: 100%;
+  .roda__n,
+  .roda__legenda {
+    font-family: "Neue Montreal", system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
   }
 
-  .palco__painel--galeria {
-    width: 100vw;
+  .roda__n {
+    color: rgba(13, 11, 10, 0.55);
   }
 
-  @keyframes deslizar {
-    /* segura a frase parada no primeiro terço: a tela congela e só depois
-       o movimento lateral começa */
-    0%,
-    30% {
-      translate: 0 0;
-    }
-    /* a faixa entra e para; daí em diante quem se move são os cards */
-    55%,
-    100% {
-      translate: -100vw 0;
-    }
+  .roda__legenda {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.85rem 0 0;
   }
 
-  @supports not (animation-timeline: view()) {
-    .palco {
-      height: auto;
-    }
-
-    .palco__tela {
-      position: static;
-      height: auto;
-      overflow: visible;
-    }
-
-    /* o grão cobre o palco inteiro — se ficasse só na seção, a borda dele
-     viraria uma divisória visível durante a transição */
-  .palco__grao {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    opacity: 0.14;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  .roda__tipo {
+    color: rgba(13, 11, 10, 0.5);
   }
 
-  .palco__trilho {
-      display: block;
-      width: auto;
-      animation: none;
-    }
-
-    .palco__painel {
-      width: auto;
-      height: auto;
-    }
-
-    .palco__painel--galeria {
-      width: auto;
-      overflow-x: auto;
-      padding-block: clamp(3rem, 8vh, 5rem);
-    }
-  }
-
+  /* Sem movimento: seção normal e cards em faixa rolável. */
   @media (prefers-reduced-motion: reduce) {
     .palco {
       height: auto;
@@ -151,33 +235,22 @@ import Galeria from "./Galeria.astro";
       overflow: visible;
     }
 
-    /* o grão cobre o palco inteiro — se ficasse só na seção, a borda dele
-     viraria uma divisória visível durante a transição */
-  .palco__grao {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    opacity: 0.14;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  }
-
-  .palco__trilho {
-      display: block;
-      width: auto;
-      animation: none;
-    }
-
-    .palco__painel {
-      width: auto;
+    .roda {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
       height: auto;
-    }
-
-    .palco__painel--galeria {
-      width: auto;
       overflow-x: auto;
       padding-block: clamp(3rem, 8vh, 5rem);
+    }
+
+    .roda__item {
+      position: static;
+      flex: 0 0 auto;
+    }
+
+    .roda__item--secao {
+      width: 100%;
     }
   }
 </style>
