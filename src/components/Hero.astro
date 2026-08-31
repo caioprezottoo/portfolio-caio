@@ -1,0 +1,76 @@
+---
+import { WHATSAPP_URL, AGENDA_URL } from "../data/contato";
+---
+
+<header class="hero">
+  <div class="wrap hero__inner">
+    <p class="eyebrow">Caio Prezotto — direção criativa &amp; produção</p>
+
+    <h1 class="hero__title">
+      Da ideia ao site no ar,<br />feito por uma pessoa só.
+    </h1>
+
+    <p class="hero__lead">
+      Conceito, identidade, imagem e vídeo de campanha e a landing page
+      publicada. Um interlocutor, um padrão visual, prazo de semanas — não de
+      trimestres.
+    </p>
+
+    <div class="hero__actions">
+      <a class="btn btn--primary" href={WHATSAPP_URL} rel="noopener">
+        Chamar no WhatsApp
+      </a>
+      <a class="btn btn--ghost" href={AGENDA_URL} rel="noopener">
+        Agendar uma call de 30 min
+      </a>
+    </div>
+
+    <ul class="hero__proof">
+      <li>3 marcas atendidas de ponta a ponta</li>
+      <li>2 sites no ar</li>
+      <li>Produção visual sem set nem produtora</li>
+    </ul>
+  </div>
+</header>
+
+<style>
+  .hero {
+    border-bottom: 1px solid var(--rule);
+    background: linear-gradient(180deg, var(--paper-2), var(--paper) 70%);
+  }
+
+  .hero__inner {
+    padding-block: clamp(3.5rem, 10vw, 7.5rem) var(--section-y);
+  }
+
+  .hero__title {
+    font-size: var(--step-display);
+    margin-block: 1.25rem 0;
+  }
+
+  .hero__lead {
+    max-width: var(--measure);
+    margin-top: 1.5rem;
+    color: var(--ink-2);
+    font-size: clamp(1.05rem, 1rem + 0.5vw, 1.3rem);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+
+  .hero__proof {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin: 3rem 0 0;
+    padding: 1.25rem 0 0;
+    border-top: 1px solid var(--rule);
+    list-style: none;
+    font-size: var(--step-small);
+    color: var(--ink-2);
+  }
+</style>
