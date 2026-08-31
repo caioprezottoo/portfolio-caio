@@ -76,6 +76,8 @@ const projetos = [
   <div class="palco__tela">
     <div class="palco__grao" aria-hidden="true"></div>
 
+    <p class="palco__titulo" aria-hidden="true">Os resultados</p>
+
     <div class="roda">
       <article class="roda__item roda__item--secao">
         <Forca />
@@ -143,6 +145,7 @@ const projetos = [
   ).matches;
 
   if (palco && roda && itens.length && !querMenosMovimento) {
+    const titulo = palco.querySelector<HTMLElement>(".palco__titulo");
     const bend = Number(palco.dataset.bend ?? 1);
     const ease = Number(palco.dataset.ease ?? 0.06);
     const velocidade = Number(palco.dataset.velocidade ?? 1);
@@ -213,6 +216,14 @@ const projetos = [
 
       atual += (alvo - atual) * ease;
 
+      // o título só existe enquanto a roda está longe da seção
+      if (titulo) {
+        const distanciaDaSecao = Math.min(posicao, itens.length - posicao);
+        titulo.style.opacity = String(
+          Math.min(Math.max(distanciaDaSecao / 0.6, 0), 1),
+        );
+      }
+
       itens.forEach((item, i) => {
         let x = (posicoes[i] - atual) % comprimento;
         if (x < -item.offsetWidth - VAO) x += comprimento;
@@ -272,6 +283,24 @@ const projetos = [
     opacity: 0.14;
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  /* Título da galeria: fica com a tela presa, aparece quando a roda sai da
+     seção e some quando ela volta. */
+  .palco__titulo {
+    position: absolute;
+    top: clamp(2rem, 7vh, 4rem);
+    left: clamp(1.5rem, 6vw, 5rem);
+    z-index: 3;
+    margin: 0;
+    font-family: "Neue Montreal", system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(13, 11, 10, 0.55);
+    opacity: 0;
+    transition: opacity 0.4s ease;
   }
 
   .roda {
@@ -403,6 +432,12 @@ const projetos = [
 
   /* Sem movimento: seção normal e cards em faixa rolável. */
   @media (prefers-reduced-motion: reduce) {
+    .palco__titulo {
+      position: static;
+      opacity: 1;
+      margin: 0 0 1.5rem clamp(1.5rem, 6vw, 5rem);
+    }
+
     .palco {
       height: auto;
     }
