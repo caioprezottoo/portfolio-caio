@@ -1,5 +1,10 @@
 ---
+import { Image } from "astro:assets";
 import Forca from "./Forca.astro";
+import theBasic from "../assets/projetos/the-basic.jpg";
+import orbis from "../assets/projetos/orbis.jpg";
+import misterN from "../assets/projetos/mister-n.jpg";
+import altou from "../assets/projetos/altou.jpg";
 
 // A seção de força é o PRIMEIRO item da roda — não um painel separado.
 // Todos os itens (a seção e os cards de projeto) ficam no mesmo arco: quando
@@ -25,12 +30,48 @@ const {
   scrollSpeed = 1,
 } = Astro.props;
 
+// Projetos reais, montados a partir do material de cada pasta do portfólio.
 const projetos = [
-  { nome: "The Basic", tipo: "Moda" },
-  { nome: "Orbis", tipo: "Indústria" },
-  { nome: "Mister N's", tipo: "Serviço" },
-  { nome: "Em breve", tipo: "—" },
-  { nome: "Em breve", tipo: "—" },
+  {
+    nome: "The Basic",
+    tipo: "Moda",
+    entrega: "Catálogo 360º, filme de campanha e site publicado",
+    capa: theBasic,
+    alt: "Boné da The Basic em três quartos, luz de estúdio",
+    link: "https://the-basic-astro-2.vercel.app",
+  },
+  {
+    nome: "Orbis",
+    tipo: "Indústria gráfica",
+    entrega: "Filme de marca e site institucional no ar",
+    capa: orbis,
+    alt: "Folhas impressas sendo conferidas na gráfica da Orbis",
+    link: "https://orbis-liart-seven.vercel.app",
+  },
+  {
+    nome: "Mister N's",
+    tipo: "Barbearia",
+    entrega: "Campanha visual e vídeos para redes, sem set nem elenco",
+    capa: misterN,
+    alt: "Cena de campanha da Mister N's Barbershop",
+    link: null,
+  },
+  {
+    nome: "Altou",
+    tipo: "Identidade",
+    entrega: "DNA de marca e desenho de logo",
+    capa: altou,
+    alt: "Conceito de logo da Altou",
+    link: null,
+  },
+  {
+    nome: "Sore Eyes",
+    tipo: "Marca de roupa",
+    entrega: "Núcleo, tom de voz e identidade — em construção",
+    capa: null,
+    alt: null,
+    link: null,
+  },
 ];
 ---
 
@@ -51,17 +92,38 @@ const projetos = [
       </article>
 
       {
-        projetos.map((projeto, i) => (
-          <article class="roda__item roda__item--card">
-            <div class="roda__card">
-              <span class="roda__n">{String(i + 1).padStart(2, "0")}</span>
-            </div>
-            <p class="roda__legenda">
-              <span>{projeto.nome}</span>
-              <span class="roda__tipo">{projeto.tipo}</span>
-            </p>
-          </article>
-        ))
+        projetos.map((projeto, i) => {
+          const Etiqueta = projeto.link ? "a" : "div";
+          return (
+            <article class="roda__item roda__item--card">
+              <Etiqueta
+                class="roda__card"
+                href={projeto.link ?? undefined}
+                rel={projeto.link ? "noopener" : undefined}
+              >
+                {projeto.capa ? (
+                  <Image
+                    class="roda__capa"
+                    src={projeto.capa}
+                    alt={projeto.alt ?? ""}
+                    widths={[280, 560]}
+                    sizes="(min-width: 60rem) 17rem, 60vw"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span class="roda__semCapa">Em construção</span>
+                )}
+                <span class="roda__n">{String(i + 1).padStart(2, "0")}</span>
+                {projeto.link && <span class="roda__ver">Ver o site →</span>}
+              </Etiqueta>
+              <p class="roda__legenda">
+                <span class="roda__nome">{projeto.nome}</span>
+                <span class="roda__tipo">{projeto.tipo}</span>
+              </p>
+              <p class="roda__entrega">{projeto.entrega}</p>
+            </article>
+          );
+        })
       }
     </div>
   </div>
@@ -191,17 +253,68 @@ const projetos = [
   }
 
   .roda__card {
-    display: grid;
-    place-items: end start;
+    position: relative;
+    display: block;
     aspect-ratio: 3 / 4;
-    padding: 1rem;
+    overflow: hidden;
     border-radius: calc(var(--raio, 0.05) * 100%);
     background: linear-gradient(160deg, #e7e2d8, #d3ccc0);
     box-shadow: 0 18px 40px rgba(13, 11, 10, 0.12);
+    color: inherit;
+    text-decoration: none;
   }
 
-  .roda__n,
-  .roda__legenda {
+  .roda__capa {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .roda__semCapa {
+    position: absolute;
+    inset: auto 1rem 1rem;
+    font-family: "Neue Montreal", system-ui, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(13, 11, 10, 0.5);
+  }
+
+  .roda__n {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.95rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  .roda__ver {
+    position: absolute;
+    right: 0.95rem;
+    bottom: 0.9rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(13, 11, 10, 0.82);
+    color: #f4f0e8;
+    font-family: "Neue Montreal", system-ui, sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  .roda__entrega {
+    margin: 0.3rem 0 0;
+    max-width: 22ch;
+    font-family: "Neue Montreal", system-ui, sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: rgba(13, 11, 10, 0.6);
+  }
+
+  .roda__legenda,
+  .roda__n {
     font-family: "Neue Montreal", system-ui, sans-serif;
     font-size: 0.8125rem;
     font-weight: 600;
